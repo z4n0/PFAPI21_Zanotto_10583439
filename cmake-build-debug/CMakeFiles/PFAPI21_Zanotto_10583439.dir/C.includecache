@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/zano/Desktop/PFAPI21_Zanotto_10583439/main.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+
