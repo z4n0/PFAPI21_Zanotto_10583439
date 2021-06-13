@@ -4,98 +4,154 @@
 #define MAX_COMMANDLENGHT 22
 #define MAX_FIRSTCOMMANDLENGHT 6
 #define INFINITY 999
-#define TEMP 0
-#define PERM 1
-#define NIL 1
 
-int numberOfVerteces;
+int numberOfVertices;
 int lunghezzaClassifica;
-//struct Vertex;
-//struct Edge;
 
 typedef struct edge_node{
     int edgeWeight;
-    struct edge_node* nextEdge;
-    struct Vertex *destinationVertex;
-}Edge;
+    int destinationVertex;
+    struct edge_node* next;
+}EdgeNode;
 
-typedef struct vertex_node{
+typedef struct{
+    EdgeNode** adjListArray;
+}Graph;
+
+EdgeNode* newEdgeNode(int dest, int weight){
+    EdgeNode* newNode = malloc(sizeof (EdgeNode));
+    newNode->destinationVertex = dest;
+    newNode->edgeWeight = weight;
+    newNode->next = NULL;
+    return newNode;
+};
+
+Graph* createGraph(){
+    Graph* graph = malloc(sizeof (Graph));
+    graph->adjListArray = malloc(sizeof (EdgeNode*));
+    for(int i = 0; i < numberOfVertices; i++){ //TODO useless??
+        graph->adjListArray[i]=NULL;
+    }
+
+    return graph;
+}
+
+void addEdge(Graph* graph, int start, int dest, int weight){
+    //inserimento in testa alla lista se il peso è maggiore di zero
+    if(weight>0){
+        EdgeNode* newNode = newEdgeNode(dest,weight);
+        newNode->next = graph->adjListArray[start];
+        graph->adjListArray[start] = newNode;
+    }
+}
+
+// start of MinHeap Structure---------------------------------------
+typedef struct {
     int vertexIndex;
-    int status;
-    //struct vertex* nextVertex; //prossimo vertice nell ARRAY dei vertici
-    struct edge_node* firstEdge; //primo edge nella tab di adiacenza
-}Vertex;
+    int distance;
+}MinHeapNode;
 
+typedef struct{
+    int size;
+    MinHeapNode **array;
+    int* positionArray; //keep track of the Index of the vertices in the array min heap structure
+    //ex at index 1 of position arrayContains the index of vertex 1 in array
+}MinHeap;
 
+MinHeapNode* newMinHeapNode(int vertexId, int dist){
+    MinHeapNode* newMinHeapNode = malloc(sizeof (MinHeapNode));
+    newMinHeapNode->distance = dist;
+    newMinHeapNode->vertexIndex = vertexId;
+    return newMinHeapNode;
+}
 
-void InitializeVerteces(Vertex *vertices, int numberOfVerteces){
-    for(int i=0; i<numberOfVerteces; i++){
-        vertices[i].vertexIndex=i;
-        vertices[i].firstEdge = NULL;
+MinHeap* createMinHeap(){
+    MinHeap* minHeap = malloc(sizeof (MinHeap));
+    minHeap->size=0;
+    minHeap->positionArray= malloc(sizeof (numberOfVertices* sizeof (MinHeapNode*)));
+    return minHeap;
+}
+
+void swapMinHeapNode(MinHeapNode** a, MinHeapNode** b){
+    MinHeapNode * temp= *a;
+    *a = *b;
+    *b = temp;
+}
+
+void swapPositions(MinHeap* minHeap, int childIndex, int parentIndex){
+    minHeap->positionArray[minHeap->array[childIndex]->vertexIndex] = parentIndex; // minHeap->positionArray[parentIndex]
+    minHeap->positionArray[minHeap->array[parentIndex]->vertexIndex] = childIndex;
+
+}
+
+void minHeapify(MinHeap* minHeap, int index)
+{
+    int min = index;
+    int left = (2*index)+1;
+    int right = (2*index)+2;
+    //se lindice sx è fuori dalla heap size e la sua distanza è minore di quella del padre allora diventa essa smallest
+    if (left < minHeap->size && minHeap->array[left]->distance < minHeap->array[min]->distance )
+        min = left;
+    //identico ma a dx NB lordine di controllo prima sx e poi dx è importante
+    if (right < minHeap->size && minHeap->array[right]->distance < minHeap->array[min]->distance )
+        min = right;
+
+    //se smallest è cambiato vuol dire che bisogna ruotaqre qualcosa--> esiste un figlio con valore di distanza minore del padre --> swap x avere min heap
+    if (min != index)
+    {
+        // Swap positions--> the node with less distance is going up the heap --> array[min] take the position of array[index]
+        swapPositions(minHeap,min,index);
+
+        // Swap nodes in heap Array
+        swapMinHeapNode(&minHeap->array[min], &minHeap->array[index]);
+
+        minHeapify(minHeap, min);
     }
 }
 
-//TODO aggiuntaVertici di adjaceza
-//prende in ingresso lindirizzo del vertice di partenza e quello di arrivo
-//inserisce l'elemento nella lista di adjacenza contenetne il peso per raggiungerlo
-// è un inserimento in testa ad una lista.
-void addEdge(Vertex *vertices, int edgeWeight, int startIndex, int destinationIndex){
-    Edge *newEdge = malloc(sizeof (Edge)); //il nuovo edge da inserire
-
-    newEdge->destinationVertex = &vertices[destinationIndex];
-    newEdge->edgeWeight = edgeWeight;
-    newEdge->nextEdge = vertices[startIndex].firstEdge;
-
-    vertices[startIndex].firstEdge = newEdge;
-}
-
-void dijkstra(Vertex* vertices, int* predecessorIndex, int* distance){
-    int current;
-
-    for(int i=0; i<numberOfVerteces; i++){
-        distance[i]=INFINITY;
-        //status[i]=TEMP;
-        predecessorIndex[i]= NIL;
+MinHeapNode* extractMin(MinHeap* minHeap){
+    if(minHeap->size<1){ //se non esiste ritorno NUll
+        return NULL;
     }
 
-    distance[0]=0;
+    MinHeapNode* min = minHeap->array[0]; //estraggo la radice
+    minHeap->array[0] = minHeap->array[minHeap->size-1]; //la radice diventa lultimo elemento
 
-    while (1){ //continua fino a che min_temp non riesce a trovare altri nodi
-        current = min_temp(vertices,distance);//cerca il nodo adj con minor distanza possibile in statto temporaneo restituisce il suo indice
-        if(current==NIL){
-            return;
-        }
-        //TODO remeber to make status[current]=PERM;
+    swapPositions(minHeap,0,minHeap->size-1);
+    minHeap->size--;
+    minHeapify(minHeap,0);
 
+    return min;
+}
+
+void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
+    int arrayHeapIndex = minHeap->positionArray[vertexIndex];
+    minHeap->array[arrayHeapIndex]->distance = dist; //aggiorno la distanza nell array heaP
+
+    int parentIndex = (arrayHeapIndex-1)/2;
+
+    while (arrayHeapIndex!=0 && minHeap->array[arrayHeapIndex]->distance < minHeap->array[parentIndex]->distance){
+        //sposto in alto i nodi con distanza minore
+
+        swapPositions(minHeap,arrayHeapIndex,parentIndex); //aggiorno posizione nodi scambiati
+        swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[parentIndex]); //scambio nodi
+
+        arrayHeapIndex = parentIndex; //mi muovo verso lalto
     }
 }
 
-//returns the temporary vertex with minim value of distance, returns NIL if no temporary vertex is left or
-//all temporary vertices left have pathlenght infinity
-int min_temp(Vertex* vertices,int* distance){
-    int i;
-    int min = INFINITY;
-    int k = NIL;
-    for(i=0; i<numberOfVerteces;i++){
-        if(vertices[i].status==TEMP && distance[i]<min){
-            min=distance[i];
-            k=i;
-        }
-    }
-    return k;
-}
 
 
 int main() {
-
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/inputfile.txt", "r"); // read only
+    //linux "/home/zano/Desktop/PROJECT21_API/inputfile.txt"
+    //windows "C:\\Users\\Luca\\Desktop\\progettoApiNascosto\\inputfile.txt"
+    FILE *fp = fopen("C:\\Users\\Luca\\Desktop\\progettoApiNascosto\\inputfile.txt", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
         perror(fp);
         exit(-1);
     }
-
 
     //ARRAY di char che conterrano il primo comando
     char numberContainer[MAX_FIRSTCOMMANDLENGHT];
@@ -117,7 +173,7 @@ int main() {
         numberContainer[j++] = firstcommand[i++];
 
         if (firstcommand[i] == ',') {
-            numberOfVerteces = (int) strtol(numberContainer, NULL, 10); //converte da array a int
+            numberOfVertices = (int) strtol(numberContainer, NULL, 10); //converte da array a int
             memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);
             j = 0;
             i++;
@@ -127,23 +183,25 @@ int main() {
     memset(firstcommand, 0, MAX_FIRSTCOMMANDLENGHT);        //TODO USLESS
     memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);
 
-    //inizializzazione ARRAY dei vertici
-    Vertex vertices[numberOfVerteces];
-    InitializeVerteces(vertices, numberOfVerteces);
-
     //lettura comandi  2 casi possibili
     //1.AggiungiGrafo--> leggi Matrice --> riempi lista di adiacenza
+    //2 Calcola cammini minimi e aggiungi risultato alla MaxHeap;
     //2.Topk--> stampa classifica
+    int graphIndex=-1;
+    int numeroCamminiMinimi; //variabile che mi conterra i cammini minimi
 
     while (fgets(inputContainer, MAX_COMMANDLENGHT, fp) != NULL) { //fino a che si puo leggere
 
         if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
+            graphIndex++;
+            Graph* graph= createGraph(); //creo il grafo
             memset(inputContainer, 0, MAX_COMMANDLENGHT); //svuoto inputContainer
-//            j=0;
+
             //Se il comando è di aggiungi grafo -->leggi la matrice nxn
-            for (i = 0; i < numberOfVerteces; i++) {
+            for (i = 0; i < numberOfVertices; i++) {
                 fgets(inputContainer, MAX_COMMANDLENGHT, fp);    //leggo riga matrice
-                strtok(inputContainer, "\n");   //elimino il\n
+                strtok(inputContainer, "\n");   //elimino il\n dalla riga letta
+
                 //separo i numeri della riga
                 char *edgeWeightToken = strtok(inputContainer, " ");
                 j = 0; //indice delle colonne
@@ -152,17 +210,15 @@ int main() {
                 while (edgeWeightToken != NULL) {
                     //printf(" %s\n", edgeWeightToken );
                     int edgeWeight = (int) strtol(edgeWeightToken, NULL, 10);//converto il token a int
-                    addEdge(vertices, edgeWeight, i, j++);
-                    edgeWeightToken = strtok(NULL, " ");
+                    addEdge(graph,i, j++,edgeWeight); //aggiungo edge al grafo
+                    edgeWeightToken = strtok(NULL, " "); //vado al next token
                 }
             }
-            int predecessor[numberOfVerteces]; //array che contiene l'ID del hop precedente al nodo i
-            int distance[numberOfVerteces]; //array che contiene la distanza del nodo i dal nodo zero
-            dijkstra(vertices,predecessor,distance);
-            //TODO comando che chiama djsktra e inserisce numero cammini minimi e id del grafo in una min heap
-        } else if (strcmp(inputContainer, "TopK") == 0) {
-            //TODO TOPK command
-            //TODO fa semplicemente un estrazione dalla min heap tante volte qualta è la lunghezza della classifica
+
+
+
+        } else if (strcmp(inputContainer, "TopK\n") == 0) {
+            //stampa k grafi con cammini Minimi Minori
         }
     }
     return 0;
