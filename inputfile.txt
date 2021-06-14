@@ -1,4 +1,4 @@
-3,4
+3 4
 AggiungiGrafo
 0 4 3
 0 2 0

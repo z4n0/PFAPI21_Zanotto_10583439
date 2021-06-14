@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_COMMANDLENGHT 22
-#define MAX_FIRSTCOMMANDLENGHT 6
+#define MAX_COMMANDLENGHT 1024
+#define MAX_FIRSTCOMMANDLENGHT 12
 #define INFINITY 999
 
 int numberOfVertices;
@@ -36,7 +36,7 @@ Graph* createGraph(){
     return graph;
 }
 
-void addEdge(Graph* graph, int start, int dest, int weight){
+void addEdge(Graph* graph, int start, int dest, int weight){ //TODO toglie anche le freccie che ritornano a zero?
     //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello
     if(weight>0 && start!=dest){
         EdgeNode* newNode = newEdgeNode(dest,weight);
@@ -292,7 +292,7 @@ void insert (MaxHeap* maxHeap, int key, int gIndex){
 }
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/inputfile.txt", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_1", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -302,10 +302,10 @@ int main() {
 
     //ARRAY di char che conterrano il primo comando
     char numberContainer[MAX_FIRSTCOMMANDLENGHT];
-    char firstcommand[10];
-    char inputContainer[22];
+    char firstcommand[MAX_FIRSTCOMMANDLENGHT];
+    char inputContainer[MAX_COMMANDLENGHT];
 
-    memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);    //svuoto il numberContainer
+    memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);    //svuoto il numberContainer //TODO usless??
 
     //lettura primo comando
     if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
@@ -319,7 +319,7 @@ int main() {
         //inserisco i numeri in n
         numberContainer[j++] = firstcommand[i++];
 
-        if (firstcommand[i] == ',') {
+        if (firstcommand[i] == ' ') {
             numberOfVertices = (int) strtol(numberContainer, NULL, 10); //converte da array a int
             memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);
             j = 0;
@@ -328,14 +328,14 @@ int main() {
     }
     lunghezzaClassifica = (int) strtol(numberContainer, NULL, 10);
     memset(firstcommand, 0, MAX_FIRSTCOMMANDLENGHT);        //TODO USLESS
-    memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);
+    memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);  //TODO useless??
 
     //lettura comandi  2 casi possibili
     //1.AggiungiGrafo--> leggi Matrice --> riempi lista di adiacenza
     //2 Calcola cammini minimi e aggiungi risultato alla MaxHeap;
     //2.Topk--> stampa classifica
     int graphIndex=-1;
-    int numeroCamminiMinimi; //variabile che mi conterra i cammini minimi
+    int numeroCamminiMinimi=0; //TODO useless assignation variabile che mi conterra i cammini minimi
 
     MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
 
@@ -349,18 +349,18 @@ int main() {
             //Se il comando è di aggiungi grafo -->leggi la matrice nxn
             for (i = 0; i < numberOfVertices; i++) {
                 fgets(inputContainer, MAX_COMMANDLENGHT, fp);    //leggo riga matrice
-                strtok(inputContainer, "\n");   //elimino il\n dalla riga letta
+                //strtok(inputContainer, "\n");   //elimino il\n dalla riga letta
 
                 //separo i numeri della riga
-                char *edgeWeightToken = strtok(inputContainer, " ");
+                //char *edgeWeightToken = strtok(inputContainer, ",");
                 j = 0; //indice delle colonne
-
+                char *cursor = inputContainer;
 //              walk through other number of the Line
-                while (edgeWeightToken != NULL) {
+                while (cursor != NULL) {
                     //printf(" %s\n", edgeWeightToken );
-                    int edgeWeight = (int) strtol(edgeWeightToken, NULL, 10);//converto il token a int
+                    int edgeWeight = (int) strtol(inputContainer, cursor, 10);//converto il token a int
                     addEdge(graph,i, j++,edgeWeight); //aggiungo edge al grafo
-                    edgeWeightToken = strtok(NULL, " "); //vado al next token
+                    //edgeWeightToken = strtok(NULL, " "); //vado al next token
                 }
             }
 
