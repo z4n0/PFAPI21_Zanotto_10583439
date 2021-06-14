@@ -19,7 +19,7 @@ typedef struct{
 }Graph;
 
 EdgeNode* newEdgeNode(int dest, int weight){
-    EdgeNode* newNode = malloc(sizeof (EdgeNode));
+    EdgeNode* newNode = malloc(sizeof(EdgeNode));
     newNode->destinationVertex = dest;
     newNode->edgeWeight = weight;
     newNode->next = NULL;
@@ -27,8 +27,8 @@ EdgeNode* newEdgeNode(int dest, int weight){
 };
 
 Graph* createGraph(){
-    Graph* graph = malloc(sizeof (Graph));
-    graph->adjListArray = malloc(sizeof (EdgeNode*));
+    Graph* graph = malloc(sizeof(Graph));
+    graph->adjListArray = malloc(numberOfVertices * sizeof (EdgeNode*));
     for(int i = 0; i < numberOfVertices; i++){ //TODO useless??
         graph->adjListArray[i]=NULL;
     }
@@ -37,8 +37,8 @@ Graph* createGraph(){
 }
 
 void addEdge(Graph* graph, int start, int dest, int weight){
-    //inserimento in testa alla lista se il peso è maggiore di zero
-    if(weight>0){
+    //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello
+    if(weight>0 && start!=dest){
         EdgeNode* newNode = newEdgeNode(dest,weight);
         newNode->next = graph->adjListArray[start];
         graph->adjListArray[start] = newNode;
@@ -59,7 +59,7 @@ typedef struct{
 }MinHeap;
 
 MinHeapNode* newMinHeapNode(int vertexId, int dist){
-    MinHeapNode* newMinHeapNode = malloc(sizeof (MinHeapNode));
+    MinHeapNode* newMinHeapNode = malloc(sizeof(MinHeapNode));
     newMinHeapNode->distance = dist;
     newMinHeapNode->vertexIndex = vertexId;
     return newMinHeapNode;
@@ -68,56 +68,57 @@ MinHeapNode* newMinHeapNode(int vertexId, int dist){
 MinHeap* createMinHeap(){
     MinHeap* minHeap = malloc(sizeof (MinHeap));
     minHeap->size=0;
-    minHeap->positionArray= malloc(sizeof (numberOfVertices* sizeof (MinHeapNode*)));
+    minHeap->positionArray= malloc(numberOfVertices* sizeof(int));
+    minHeap->array = malloc(numberOfVertices * sizeof (MinHeapNode*));
     return minHeap;
 }
 
 void swapMinHeapNode(MinHeapNode** a, MinHeapNode** b){
-    MinHeapNode * temp= *a;
+    MinHeapNode *temp= *a;
     *a = *b;
     *b = temp;
 }
 
+//swap value in the position array
 void swapPositions(MinHeap* minHeap, int childIndex, int parentIndex){
     minHeap->positionArray[minHeap->array[childIndex]->vertexIndex] = parentIndex; // minHeap->positionArray[parentIndex]
     minHeap->positionArray[minHeap->array[parentIndex]->vertexIndex] = childIndex;
-
 }
 
 void minHeapify(MinHeap* minHeap, int index)
 {
-    int min = index;
+    int min = index; //containse the index of the minimum element in the array heap
     int left = (2*index)+1;
     int right = (2*index)+2;
     //se lindice sx è fuori dalla heap size e la sua distanza è minore di quella del padre allora diventa essa smallest
-    if (left < minHeap->size && minHeap->array[left]->distance < minHeap->array[min]->distance )
+    if (left < minHeap->size && minHeap->array[left]->distance < minHeap->array[min]->distance)
         min = left;
     //identico ma a dx NB lordine di controllo prima sx e poi dx è importante
-    if (right < minHeap->size && minHeap->array[right]->distance < minHeap->array[min]->distance )
+    if (right < minHeap->size && minHeap->array[right]->distance < minHeap->array[min]->distance)
         min = right;
 
-    //se smallest è cambiato vuol dire che bisogna ruotaqre qualcosa--> esiste un figlio con valore di distanza minore del padre --> swap x avere min heap
+    //se smallest è cambiato vuol dire che bisogna swappare qualcosa--> esiste un figlio con valore di distanza minore del padre --> swap x avere min heap
     if (min != index)
     {
         // Swap positions--> the node with less distance is going up the heap --> array[min] take the position of array[index]
         swapPositions(minHeap,min,index);
-
-        // Swap nodes in heap Array
         swapMinHeapNode(&minHeap->array[min], &minHeap->array[index]);
-
         minHeapify(minHeap, min);
     }
 }
 
+//extract the root swap it with last element and call heapify, return a pointer to it
+//if heap is empty return NULL
+//a
 MinHeapNode* extractMin(MinHeap* minHeap){
-    if(minHeap->size<1){ //se non esiste ritorno NUll
+    if(minHeap->size==0){ //se non esiste ritorno NUll
         return NULL;
     }
 
+    swapPositions(minHeap,0,minHeap->size-1);
     MinHeapNode* min = minHeap->array[0]; //estraggo la radice
     minHeap->array[0] = minHeap->array[minHeap->size-1]; //la radice diventa lultimo elemento
 
-    swapPositions(minHeap,0,minHeap->size-1);
     minHeap->size--;
     minHeapify(minHeap,0);
 
@@ -125,6 +126,7 @@ MinHeapNode* extractMin(MinHeap* minHeap){
 }
 
 void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
+
     int arrayHeapIndex = minHeap->positionArray[vertexIndex];
     minHeap->array[arrayHeapIndex]->distance = dist; //aggiorno la distanza nell array heaP
 
@@ -132,7 +134,6 @@ void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
 
     while (arrayHeapIndex!=0 && minHeap->array[arrayHeapIndex]->distance < minHeap->array[parentIndex]->distance){
         //sposto in alto i nodi con distanza minore
-
         swapPositions(minHeap,arrayHeapIndex,parentIndex); //aggiorno posizione nodi scambiati
         swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[parentIndex]); //scambio nodi
 
@@ -141,11 +142,157 @@ void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
 }
 
 
+int dijkstra(Graph* graph) {
+
+    MinHeap *minHeap = createMinHeap();
+
+    for (int i = 0; i < numberOfVertices; i++) {
+        minHeap->array[i] = newMinHeapNode(i, INFINITY);
+        minHeap->positionArray[i] = i;
+    }
+
+    minHeap->array[0]->distance = 0;
+    int sommaCamminiMinimi = 0;
+    minHeap->size = numberOfVertices;
+
+    while (minHeap->size != 0) { //fino a che la heap non è vuota
+        MinHeapNode *minDistanceNode = extractMin(minHeap);
+        if(minDistanceNode==NULL)
+            return 0;
+        //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente
+        if (minDistanceNode->distance != INFINITY ) { //TODO NB occhio al caso in cui nessun nodo è raggiungibile finisco per ritornare 0 è giusto?
+            sommaCamminiMinimi += minDistanceNode->distance;
+        }
+
+        int u = minDistanceNode->vertexIndex;
+
+        EdgeNode *temp = graph->adjListArray[u];
+        while (temp != NULL) {
+            int v = temp->destinationVertex;
+            if (minHeap->positionArray[v] < minHeap->size && minHeap->array[minHeap->positionArray[v]]->distance > temp->edgeWeight + minDistanceNode->distance) {
+                decreaseDistance(minHeap, v,minDistanceNode->distance + temp->edgeWeight);
+            }
+            temp = temp->next;
+        }
+    }
+    return sommaCamminiMinimi;
+}
+
+//max_heap contenente id grafi e n cammini Minimi---------------------------------------
+
+typedef struct graph_heap_Node
+{
+    int gIndex;
+    int camminiMinimi;
+
+}GraphHeapNode;
+
+
+typedef struct max_heap{
+    GraphHeapNode **array;
+    int size;
+}MaxHeap;
+
+GraphHeapNode* newMaxHeapNode(int graphIndex){
+    GraphHeapNode* NewMaxHeapNode =(GraphHeapNode*) malloc(sizeof(GraphHeapNode));
+    NewMaxHeapNode->gIndex = graphIndex;
+    NewMaxHeapNode->camminiMinimi = -1*INFINITY;
+    return NewMaxHeapNode;
+}
+
+//inizializza e restituisce un puntatore a MaxHeap
+MaxHeap* createMaxHeap(){
+    MaxHeap* maxHeap = malloc(sizeof (MaxHeap));
+    maxHeap->size=0;
+    //maxHeap->lunghezzaClassifica=lunghezzaClassifica;
+    maxHeap->array = malloc((lunghezzaClassifica+1) * sizeof(GraphHeapNode*)); //NB +1 xk la heap parte da 1
+    maxHeap->array[0]=NULL; //TODO occhio a questo magari crea problemi in futuro
+    return maxHeap;
+}
+
+
+void swapMaxH(GraphHeapNode **a, GraphHeapNode **b ) {
+    GraphHeapNode* t;
+    t = *a;
+    *a = *b;
+    *b = t;
+}
+
+
+void increase_key(MaxHeap* maxHeap, int index, int key) {
+    maxHeap->array[index]->camminiMinimi = key;
+    //if(key == maxHeap->array[1]->camminiMinimi)
+
+    while((index>1) && (maxHeap->array[index/2]->camminiMinimi <= maxHeap->array[index]->camminiMinimi)) {
+        swapMaxH(&maxHeap->array[index], &maxHeap->array[index/2]); //è un UP_heapify
+        index = index/2;  //TODO sperando che èarent sia davvero index/2
+    }
+}
+
+//é un down Heapify
+void maxHeapify(MaxHeap* maxHeap, int index){
+    int left_child = index*2;
+    int right_child = index*2+1;
+
+    int largest;
+    if(left_child > lunghezzaClassifica) //caso in cui non abbia figli
+        return;
+
+    if(left_child <= maxHeap->size && maxHeap->array[left_child]->camminiMinimi >= maxHeap->array[index]->camminiMinimi){ //TODO controllo child <= size è ridondante?
+        largest = left_child;
+    } else{
+        largest=index;
+    }
+
+    if(right_child <= maxHeap->size && maxHeap->array[right_child]->camminiMinimi > maxHeap->array[largest]->camminiMinimi){ //TODO occhio ho cambiato >= in >
+        largest = right_child;
+    }
+
+    if(largest!=index){
+        swapMaxH(&maxHeap->array[index], &maxHeap->array[largest]);
+        maxHeapify(maxHeap, largest);
+    }
+}
+
+//estrae il nodo massimo restituisce un puntatore ad esso oppure NULL e chiama heapify dalla radice
+/*
+GraphHeapNode* extract_max(MaxHeap* maxHeap) { //TODO useless??
+    if(maxHeap->size < 1){
+        return NULL;
+    }
+    GraphHeapNode* maxNode = maxHeap->array[1]; //estrae la radice
+    maxHeap->array[1] = maxHeap->array[maxHeap->size]; //ora il primo puntatore punta all ultimo
+    maxHeap->size--; //diminuisci la size
+    maxHeapify(maxHeap, 1);
+    return maxNode;
+}
+*/
+
+
+void insert (MaxHeap* maxHeap, int key, int gIndex){
+    GraphHeapNode* newNode;
+    if(maxHeap->size < lunghezzaClassifica){
+        maxHeap->size++;
+        newNode = newMaxHeapNode(gIndex); //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
+        maxHeap->array[maxHeap->size] = newNode; //lo inserisco alla fine (lo faccio puntare all ultimno posto
+        increase_key(maxHeap,  maxHeap->size , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
+    }else{
+        if(key < maxHeap->array[1]->camminiMinimi){ //se il valore che voglio inserire è minore della root allora diventa root e la root vecchia viene eliminata
+            //poi chiamo heapify cosi facendo in root avro sempre il massimo valore dei 5 che verra scambiato con quello entrante in caso sia minore inoltre la heap e riorganizzata
+            //cosi facendo non devo salvare piu di lunghezzaclassifica elementi-->heapify è piu veloce e occupo meno mem
+            //NB LA STAMPA FINALE DI TOPK pero dovra avvenire dal basso verso lalto perchè i valori piu piccoli stanno alle foglie
+            // è possibile?? alla peggio una bella Heap Sort o quicksort(BEST OPTION) e stampa reverse
+            newNode = newMaxHeapNode(gIndex);
+            free(maxHeap->array[1]); //elimino la root
+            maxHeap->array[1]=newNode; //aggiorno la root
+            maxHeap->array[1]->camminiMinimi = key; //inserisco la distanza cosi perche con increase/decreaseKey chiamere heapifyUp che non funzia devo andare down ora
+            maxHeapify(maxHeap, 1); //top_down
+        }
+    }
+}
 
 int main() {
-    //linux "/home/zano/Desktop/PROJECT21_API/inputfile.txt"
-    //windows "C:\\Users\\Luca\\Desktop\\progettoApiNascosto\\inputfile.txt"
-    FILE *fp = fopen("C:\\Users\\Luca\\Desktop\\progettoApiNascosto\\inputfile.txt", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/inputfile.txt", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -158,7 +305,7 @@ int main() {
     char firstcommand[10];
     char inputContainer[22];
 
-    memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);            //svuoto il numberContainer
+    memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);    //svuoto il numberContainer
 
     //lettura primo comando
     if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
@@ -190,6 +337,8 @@ int main() {
     int graphIndex=-1;
     int numeroCamminiMinimi; //variabile che mi conterra i cammini minimi
 
+    MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
+
     while (fgets(inputContainer, MAX_COMMANDLENGHT, fp) != NULL) { //fino a che si puo leggere
 
         if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
@@ -215,10 +364,18 @@ int main() {
                 }
             }
 
-
+            numeroCamminiMinimi = dijkstra(graph); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
+            insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
         } else if (strcmp(inputContainer, "TopK\n") == 0) {
-            //stampa k grafi con cammini Minimi Minori
+            for (i = 1; i < lunghezzaClassifica+1; i++) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
+                if(i <= maxHeapPtr->size) //TODO < o <=
+                    printf("%d ",maxHeapPtr->array[i]->gIndex);
+                else{
+                    printf("\n");
+                    break;
+                }
+            }
         }
     }
     return 0;
