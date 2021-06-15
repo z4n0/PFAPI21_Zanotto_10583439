@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_COMMANDLENGHT 1024
-#define MAX_FIRSTCOMMANDLENGHT 12
-#define INFINITY 999999
+#define MAX_COMMANDLENGHT 2400
+#define MAX_FIRSTCOMMANDLENGHT 15
+#define INFINITY 9999999999
 
 int numberOfVertices;
 int lunghezzaClassifica;
@@ -292,7 +292,7 @@ void insert (MaxHeap* maxHeap, int key, int gIndex){
 }
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_1", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
