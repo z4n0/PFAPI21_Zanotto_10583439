@@ -3,7 +3,7 @@
 #include <string.h>
 #define MAX_COMMANDLENGHT 1024
 #define MAX_FIRSTCOMMANDLENGHT 12
-#define INFINITY 999
+#define INFINITY 999999
 
 int numberOfVertices;
 int lunghezzaClassifica;
@@ -157,9 +157,9 @@ int dijkstra(Graph* graph) {
 
     while (minHeap->size != 0) { //fino a che la heap non è vuota
         MinHeapNode *minDistanceNode = extractMin(minHeap);
-        if(minDistanceNode==NULL)
+        /*if(minDistanceNode==NULL)
             return 0;
-        //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente
+        //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
         if (minDistanceNode->distance != INFINITY ) { //TODO NB occhio al caso in cui nessun nodo è raggiungibile finisco per ritornare 0 è giusto?
             sommaCamminiMinimi += minDistanceNode->distance;
         }
@@ -349,18 +349,19 @@ int main() {
             //Se il comando è di aggiungi grafo -->leggi la matrice nxn
             for (i = 0; i < numberOfVertices; i++) {
                 fgets(inputContainer, MAX_COMMANDLENGHT, fp);    //leggo riga matrice
-                //strtok(inputContainer, "\n");   //elimino il\n dalla riga letta
+                strtok(inputContainer, "\n");   //elimino il\n dalla riga letta
 
                 //separo i numeri della riga
-                //char *edgeWeightToken = strtok(inputContainer, ",");
+                char *edgeWeightToken = strtok(inputContainer, ",");
                 j = 0; //indice delle colonne
-                char *cursor = inputContainer;
+
 //              walk through other number of the Line
-                while (cursor != NULL) {
+                while (edgeWeightToken != NULL) {
                     //printf(" %s\n", edgeWeightToken );
-                    int edgeWeight = (int) strtol(inputContainer, cursor, 10);//converto il token a int
-                    addEdge(graph,i, j++,edgeWeight); //aggiungo edge al grafo
-                    //edgeWeightToken = strtok(NULL, " "); //vado al next token
+                    int edgeWeight = atoi(edgeWeightToken);
+                    //(int) strtol(edgeWeightToken, NULL, 10);//converto il token a int
+                    addEdge(graph, i, j++, edgeWeight); //aggiungo edge al grafo
+                    edgeWeightToken = strtok(NULL, ","); //vado al next token
                 }
             }
 

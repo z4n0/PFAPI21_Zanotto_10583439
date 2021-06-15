@@ -11,7 +11,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1c4e9885-cc31-4830-9591-4e0737f95108" name="Default Changelist" comment="problem with input handling and parsing" />
+    <list default="true" id="1c4e9885-cc31-4830-9591-4e0737f95108" name="Default Changelist" comment="problem with input handling and parsing">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/PFAPI21_Zanotto_10583439" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/PFAPI21_Zanotto_10583439" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -55,9 +61,9 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
   </component>
@@ -77,6 +83,8 @@
       <workItem from="1623685221879" duration="4171000" />
       <workItem from="1623692129325" duration="1064000" />
       <workItem from="1623695776794" duration="1901000" />
+      <workItem from="1623700585317" duration="726000" />
+      <workItem from="1623749418944" duration="1895000" />
     </task>
     <task id="LOCAL-00001" summary="MinHeap and Graph implementation ended&#10;todo:dijsktra and topk implementation">
       <created>1623610595258</created>
@@ -136,20 +144,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/main.c</url>
-          <line>40</line>
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/main.c</url>
-          <line>360</line>
-          <option name="timeStamp" value="6" />
+          <line>367</line>
+          <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
-        <watch expression="cursor" />
-        <watch expression="edgeWeight" />
         <watch expression="numeroCamminiMinimi" />
         <watch expression="minHeap-&gt;array[minHeap-&gt;positionArray[v]]" language="ObjectiveC" />
         <watch expression="minHeap-&gt;positionArray[0]" language="ObjectiveC" />
@@ -158,6 +159,7 @@
         <watch expression="minHeap-&gt;array[0]" language="ObjectiveC" />
         <watch expression="minHeap-&gt;array[1]" language="ObjectiveC" />
         <watch expression="minHeap-&gt;array[2]" language="ObjectiveC" />
+        <watch expression="minHeap-&gt;array[3]" language="ObjectiveC" />
         <watch expression="maxHeapPtr-&gt;array[0]" language="ObjectiveC" />
         <watch expression="maxHeapPtr-&gt;array[1]" language="ObjectiveC" />
         <watch expression="graphIndex" />
