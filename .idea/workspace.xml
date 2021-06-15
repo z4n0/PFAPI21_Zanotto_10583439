@@ -11,12 +11,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1c4e9885-cc31-4830-9591-4e0737f95108" name="Default Changelist" comment="problem with input handling and parsing">
+    <list default="true" id="1c4e9885-cc31-4830-9591-4e0737f95108" name="Default Changelist" comment="problem With public test 4">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/PFAPI21_Zanotto_10583439" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/PFAPI21_Zanotto_10583439" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Testing/Temporary/LastTest.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/open_tests/output_5" beforeDir="false" afterPath="$PROJECT_DIR$/open_tests/output_5" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,9 +62,9 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
   </component>
@@ -84,7 +85,8 @@
       <workItem from="1623692129325" duration="1064000" />
       <workItem from="1623695776794" duration="1901000" />
       <workItem from="1623700585317" duration="726000" />
-      <workItem from="1623749418944" duration="1895000" />
+      <workItem from="1623749418944" duration="7951000" />
+      <workItem from="1623782815730" duration="2070000" />
     </task>
     <task id="LOCAL-00001" summary="MinHeap and Graph implementation ended&#10;todo:dijsktra and topk implementation">
       <created>1623610595258</created>
@@ -114,7 +116,21 @@
       <option name="project" value="LOCAL" />
       <updated>1623697666407</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="first Public Test passed">
+      <created>1623751327667</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1623751327667</updated>
+    </task>
+    <task id="LOCAL-00006" summary="problem With public test 4">
+      <created>1623774054609</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1623774054609</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -137,21 +153,15 @@
     <MESSAGE value="dijsktra and topk implementation s" />
     <MESSAGE value="finished implementation with adjacency list and two binary heaps ... now testing" />
     <MESSAGE value="problem with input handling and parsing" />
-    <option name="LAST_COMMIT_MESSAGE" value="problem with input handling and parsing" />
+    <MESSAGE value="first Public Test passed" />
+    <MESSAGE value="problem With public test 4" />
+    <option name="LAST_COMMIT_MESSAGE" value="problem With public test 4" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/main.c</url>
-          <line>367</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
         <watch expression="numeroCamminiMinimi" />
+        <watch expression="graphIndex" />
         <watch expression="minHeap-&gt;array[minHeap-&gt;positionArray[v]]" language="ObjectiveC" />
         <watch expression="minHeap-&gt;positionArray[0]" language="ObjectiveC" />
         <watch expression="minHeap-&gt;positionArray[1]" language="ObjectiveC" />
@@ -162,7 +172,17 @@
         <watch expression="minHeap-&gt;array[3]" language="ObjectiveC" />
         <watch expression="maxHeapPtr-&gt;array[0]" language="ObjectiveC" />
         <watch expression="maxHeapPtr-&gt;array[1]" language="ObjectiveC" />
-        <watch expression="graphIndex" />
+        <watch expression="maxHeapPtr-&gt;array[2]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[3]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[4]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[5]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[6]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[7]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[8]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[9]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[10]" language="ObjectiveC" />
+        <watch expression="maxHeapPtr-&gt;array[11]" language="ObjectiveC" />
+        <watch expression="inputContainer[12888]" language="ObjectiveC" />
       </configuration>
     </watches-manager>
   </component>

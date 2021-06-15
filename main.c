@@ -3,7 +3,7 @@
 #include <string.h>
 #define MAX_COMMANDLENGHT 2400
 #define MAX_FIRSTCOMMANDLENGHT 15
-#define INFINITY 9999999999
+#define INFINITY 9999999
 
 int numberOfVertices;
 int lunghezzaClassifica;
@@ -24,21 +24,17 @@ EdgeNode* newEdgeNode(int dest, int weight){
     newNode->edgeWeight = weight;
     newNode->next = NULL;
     return newNode;
-};
+}
 
 Graph* createGraph(){
     Graph* graph = malloc(sizeof(Graph));
     graph->adjListArray = malloc(numberOfVertices * sizeof (EdgeNode*));
-    for(int i = 0; i < numberOfVertices; i++){ //TODO useless??
-        graph->adjListArray[i]=NULL;
-    }
-
     return graph;
 }
 
-void addEdge(Graph* graph, int start, int dest, int weight){ //TODO toglie anche le freccie che ritornano a zero?
-    //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello
-    if(weight>0 && start!=dest){
+void addEdge(Graph* graph, int start, int dest, int weight){
+    //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello o una freccia di ritorno a zero
+    if(weight>0 && start!=dest && dest != 0){
         EdgeNode* newNode = newEdgeNode(dest,weight);
         newNode->next = graph->adjListArray[start];
         graph->adjListArray[start] = newNode;
@@ -53,7 +49,7 @@ typedef struct {
 
 typedef struct{
     int size;
-    MinHeapNode **array;
+    MinHeapNode **array; //dynamic array which create a heap of minHeapNodes
     int* positionArray; //keep track of the Index of the vertices in the array min heap structure
     //ex at index 1 of position arrayContains the index of vertex 1 in array
 }MinHeap;
@@ -130,14 +126,14 @@ void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
     int arrayHeapIndex = minHeap->positionArray[vertexIndex];
     minHeap->array[arrayHeapIndex]->distance = dist; //aggiorno la distanza nell array heaP
 
-    int parentIndex = (arrayHeapIndex-1)/2;
+    //int parentIndex = (arrayHeapIndex-1)/2;
 
-    while (arrayHeapIndex!=0 && minHeap->array[arrayHeapIndex]->distance < minHeap->array[parentIndex]->distance){
+    while (arrayHeapIndex!=0 && minHeap->array[arrayHeapIndex]->distance < minHeap->array[(arrayHeapIndex-1)/2]->distance){
         //sposto in alto i nodi con distanza minore
-        swapPositions(minHeap,arrayHeapIndex,parentIndex); //aggiorno posizione nodi scambiati
-        swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[parentIndex]); //scambio nodi
+        swapPositions(minHeap,arrayHeapIndex,(arrayHeapIndex-1)/2); //aggiorno posizione nodi scambiati
+        swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[(arrayHeapIndex-1)/2]); //scambio nodi
 
-        arrayHeapIndex = parentIndex; //mi muovo verso lalto
+        arrayHeapIndex = (arrayHeapIndex-1)/2; //mi muovo verso lalto
     }
 }
 
@@ -160,7 +156,7 @@ int dijkstra(Graph* graph) {
         /*if(minDistanceNode==NULL)
             return 0;
         //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
-        if (minDistanceNode->distance != INFINITY ) { //TODO NB occhio al caso in cui nessun nodo è raggiungibile finisco per ritornare 0 è giusto?
+        if (minDistanceNode->distance != INFINITY ) {
             sommaCamminiMinimi += minDistanceNode->distance;
         }
 
@@ -206,7 +202,7 @@ MaxHeap* createMaxHeap(){
     maxHeap->size=0;
     //maxHeap->lunghezzaClassifica=lunghezzaClassifica;
     maxHeap->array = malloc((lunghezzaClassifica+1) * sizeof(GraphHeapNode*)); //NB +1 xk la heap parte da 1
-    maxHeap->array[0]=NULL; //TODO occhio a questo magari crea problemi in futuro
+    //maxHeap->array[0]=NULL; //TODO occhio a questo magari crea problemi in futuro o è useless??
     return maxHeap;
 }
 
@@ -225,7 +221,7 @@ void increase_key(MaxHeap* maxHeap, int index, int key) {
 
     while((index>1) && (maxHeap->array[index/2]->camminiMinimi <= maxHeap->array[index]->camminiMinimi)) {
         swapMaxH(&maxHeap->array[index], &maxHeap->array[index/2]); //è un UP_heapify
-        index = index/2;  //TODO sperando che èarent sia davvero index/2
+        index = index/2;  //move to parent
     }
 }
 
@@ -238,7 +234,7 @@ void maxHeapify(MaxHeap* maxHeap, int index){
     if(left_child > lunghezzaClassifica) //caso in cui non abbia figli
         return;
 
-    if(left_child <= maxHeap->size && maxHeap->array[left_child]->camminiMinimi >= maxHeap->array[index]->camminiMinimi){ //TODO controllo child <= size è ridondante?
+    if(left_child <= maxHeap->size && maxHeap->array[left_child]->camminiMinimi >= maxHeap->array[index]->camminiMinimi){ //TODO controllo child <= size è ridondante? NO non lo è
         largest = left_child;
     } else{
         largest=index;
@@ -253,21 +249,6 @@ void maxHeapify(MaxHeap* maxHeap, int index){
         maxHeapify(maxHeap, largest);
     }
 }
-
-//estrae il nodo massimo restituisce un puntatore ad esso oppure NULL e chiama heapify dalla radice
-/*
-GraphHeapNode* extract_max(MaxHeap* maxHeap) { //TODO useless??
-    if(maxHeap->size < 1){
-        return NULL;
-    }
-    GraphHeapNode* maxNode = maxHeap->array[1]; //estrae la radice
-    maxHeap->array[1] = maxHeap->array[maxHeap->size]; //ora il primo puntatore punta all ultimo
-    maxHeap->size--; //diminuisci la size
-    maxHeapify(maxHeap, 1);
-    return maxNode;
-}
-*/
-
 
 void insert (MaxHeap* maxHeap, int key, int gIndex){
     GraphHeapNode* newNode;
@@ -292,7 +273,7 @@ void insert (MaxHeap* maxHeap, int key, int gIndex){
 }
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_5", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -327,15 +308,15 @@ int main() {
         }
     }
     lunghezzaClassifica = (int) strtol(numberContainer, NULL, 10);
-    memset(firstcommand, 0, MAX_FIRSTCOMMANDLENGHT);        //TODO USLESS
-    memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);  //TODO useless??
+    //memset(firstcommand, 0, MAX_FIRSTCOMMANDLENGHT);        //TODO USLESS
+    //memset(numberContainer, 0, MAX_FIRSTCOMMANDLENGHT);  //TODO useless??
 
     //lettura comandi  2 casi possibili
     //1.AggiungiGrafo--> leggi Matrice --> riempi lista di adiacenza
     //2 Calcola cammini minimi e aggiungi risultato alla MaxHeap;
     //2.Topk--> stampa classifica
     int graphIndex=-1;
-    int numeroCamminiMinimi=0; //TODO useless assignation variabile che mi conterra i cammini minimi
+    int numeroCamminiMinimi; //TODO devo fare un assegnamwnto??
 
     MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
 
@@ -358,7 +339,7 @@ int main() {
 //              walk through other number of the Line
                 while (edgeWeightToken != NULL) {
                     //printf(" %s\n", edgeWeightToken );
-                    int edgeWeight = atoi(edgeWeightToken);
+                    int edgeWeight = (int) strtol(edgeWeightToken, NULL, 10);
                     //(int) strtol(edgeWeightToken, NULL, 10);//converto il token a int
                     addEdge(graph, i, j++, edgeWeight); //aggiungo edge al grafo
                     edgeWeightToken = strtok(NULL, ","); //vado al next token
@@ -369,6 +350,15 @@ int main() {
             insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
         } else if (strcmp(inputContainer, "TopK\n") == 0) {
+            //--------------------- riordinamento useless //TODO togli prima di mettere sul server
+/*            for (i = 1; i < lunghezzaClassifica+1; i++){
+                for(j=1;j<lunghezzaClassifica+1;j++){
+                    if(maxHeapPtr->array[i]->camminiMinimi > maxHeapPtr->array[j]->camminiMinimi){
+                        swapMaxH(&maxHeapPtr->array[i],&maxHeapPtr->array[j]);
+                    }
+                }
+            }*/
+            //-------------------------------
             for (i = 1; i < lunghezzaClassifica+1; i++) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
                 if(i <= maxHeapPtr->size) //TODO < o <=
                     printf("%d ",maxHeapPtr->array[i]->gIndex);
