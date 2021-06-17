@@ -29,6 +29,10 @@ EdgeNode* newEdgeNode(int dest, int weight){
 Graph* createGraph(){
     Graph* graph = malloc(sizeof(Graph));
     graph->adjListArray = malloc(numberOfVertices * sizeof (EdgeNode*));
+    for(int i=0; i<numberOfVertices; i++){
+        graph->adjListArray[i]=NULL;
+    }
+   
     return graph;
 }
 
