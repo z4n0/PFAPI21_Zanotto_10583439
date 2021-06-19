@@ -32,7 +32,7 @@ Graph* createGraph(){
     for(int i=0; i<numberOfVertices; i++){
         graph->adjListArray[i]=NULL;
     }
-   
+
     return graph;
 }
 
@@ -172,9 +172,15 @@ int dijkstra(Graph* graph) {
             if (minHeap->positionArray[v] < minHeap->size && minHeap->array[minHeap->positionArray[v]]->distance > temp->edgeWeight + minDistanceNode->distance) {
                 decreaseDistance(minHeap, v,minDistanceNode->distance + temp->edgeWeight);
             }
+            EdgeNode* delete = temp;
             temp = temp->next;
+            free(delete); //delete the edge of the Graph just read
         }
+        free(minDistanceNode); //delete the node extracted from minHeap
     }
+    free(minHeap->array);
+    free(minHeap->positionArray);
+    free(minHeap);
     return sommaCamminiMinimi;
 }
 
@@ -277,7 +283,7 @@ void insert (MaxHeap* maxHeap, int key, int gIndex){
 }
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_5", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -351,6 +357,8 @@ int main() {
             }
 
             numeroCamminiMinimi = dijkstra(graph); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
+            free(graph->adjListArray);
+            free(graph);
             insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
         } else if (strcmp(inputContainer, "TopK\n") == 0) {
@@ -373,5 +381,12 @@ int main() {
             }
         }
     }
+    //TODO eliminazione maxHeap useless togli quando metti su server------------------------------------------
+    for(i=1; i<lunghezzaClassifica+1; i++){
+        free(maxHeapPtr->array[i]);
+    }
+    free(maxHeapPtr->array);
+    free(maxHeapPtr);
     return 0;
 }
+
