@@ -46,7 +46,7 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
     <property name="cmake.loaded.for.project" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../progettoApiNascosto" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="configurable.group.editor" />
   </component>
   <component name="RunManager">
@@ -85,6 +85,7 @@
       <workItem from="1623700585317" duration="726000" />
       <workItem from="1623749418944" duration="7951000" />
       <workItem from="1623782815730" duration="2070000" />
+      <workItem from="1624378271725" duration="417000" />
     </task>
     <task id="LOCAL-00001" summary="MinHeap and Graph implementation ended&#10;todo:dijsktra and topk implementation">
       <created>1623610595258</created>
@@ -128,7 +129,14 @@
       <option name="project" value="LOCAL" />
       <updated>1623774054609</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="finalEdition:&#10;Adjaceny List for Graph&#10;Fibonacci heap for Dijkstra&#10;MaxHeap for TopK">
+      <created>1624378515490</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1624378515491</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -153,7 +161,8 @@
     <MESSAGE value="problem with input handling and parsing" />
     <MESSAGE value="first Public Test passed" />
     <MESSAGE value="problem With public test 4" />
-    <option name="LAST_COMMIT_MESSAGE" value="problem With public test 4" />
+    <MESSAGE value="finalEdition:&#10;Adjaceny List for Graph&#10;Fibonacci heap for Dijkstra&#10;MaxHeap for TopK" />
+    <option name="LAST_COMMIT_MESSAGE" value="finalEdition:&#10;Adjaceny List for Graph&#10;Fibonacci heap for Dijkstra&#10;MaxHeap for TopK" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
