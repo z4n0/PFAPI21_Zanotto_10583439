@@ -76,7 +76,7 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/zano/Desktop/PFAPI21_Zanotto_10583439/main.c">
+		<Unit filename="/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/main.c">
 			<Option target="PFAPI21_Zanotto_10583439"/>
 		</Unit>
 		<Unit filename="/home/zano/Desktop/PFAPI21_Zanotto_10583439/CMakeLists.txt">

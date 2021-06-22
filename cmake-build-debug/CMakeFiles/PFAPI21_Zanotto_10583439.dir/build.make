@@ -53,10 +53,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/clion/152/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /home/zano/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/211.7442.42/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /snap/clion/152/bin/cmake/linux/bin/cmake -E rm -f
+RM = /home/zano/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/211.7442.42/bin/cmake/linux/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
@@ -77,17 +77,17 @@ include CMakeFiles/PFAPI21_Zanotto_10583439.dir/progress.make
 include CMakeFiles/PFAPI21_Zanotto_10583439.dir/flags.make
 
 CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o: CMakeFiles/PFAPI21_Zanotto_10583439.dir/flags.make
-CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o: ../main.c
+CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o: main.c
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o -c /home/zano/Desktop/PFAPI21_Zanotto_10583439/main.c
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o -c /home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/main.c
 
 CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/zano/Desktop/PFAPI21_Zanotto_10583439/main.c > CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/main.c > CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.i
 
 CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/zano/Desktop/PFAPI21_Zanotto_10583439/main.c -o CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/main.c -o CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.s
 
 # Object files for target PFAPI21_Zanotto_10583439
 PFAPI21_Zanotto_10583439_OBJECTS = \

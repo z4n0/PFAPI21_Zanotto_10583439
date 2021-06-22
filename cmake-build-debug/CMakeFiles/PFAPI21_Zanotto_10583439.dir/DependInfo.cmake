@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/home/zano/Desktop/PFAPI21_Zanotto_10583439/main.c" "/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o"
+  "/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/main.c" "/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/CMakeFiles/PFAPI21_Zanotto_10583439.dir/main.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 
