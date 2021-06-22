@@ -1,3 +1,0 @@
-/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/zano/Desktop/PFAPI21_Zanotto_10583439/cmake-build-debug/CMakeFiles/PFAPI21_Zanotto_10583439.dir
