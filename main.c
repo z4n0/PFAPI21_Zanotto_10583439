@@ -449,13 +449,13 @@ void insert (MaxHeap* maxHeap, int key, int gIndex){
 }
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
-
-    // test for files not existing.
-    if (fp == NULL) {
-        perror(fp);
-        exit(-1);
-    }
+//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
+//
+//    // test for files not existing.
+//    if (fp == NULL) {
+//        perror(fp);
+//        exit(-1);
+//    }
 
     //ARRAY di char che conterrano il primo comando
     char numberContainer[MAX_NUMBERCONTAINER];
@@ -463,7 +463,7 @@ int main() {
 
 
     //lettura primo comando
-    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
+    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, stdin) == NULL) {
         return -1;
     }//es. "11,2"
 
@@ -497,7 +497,7 @@ int main() {
     Graph* graph= createGraph(); //creo il grafo
     MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
 
-    while (fgets(inputContainer, maxCommandLenght, fp) != NULL) { //fino a che si puo leggere
+    while (fgets(inputContainer, maxCommandLenght, stdin) != NULL) { //fino a che si puo leggere
 
         if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
             graphIndex++;
@@ -510,7 +510,7 @@ int main() {
 
             //Se il comando è di aggiungi grafo -->leggi la matrice nxn
             for (i = 0; i < numberOfVertices; i++) {
-                fgets(inputContainer, maxCommandLenght, fp);    //leggo riga matrice
+                fgets(inputContainer, maxCommandLenght, stdin);    //leggo riga matrice
                 strtok(inputContainer, "\n");   //elimino il\n dalla riga letta
 
                 //separo i numeri della riga
@@ -532,7 +532,7 @@ int main() {
         } else if (strcmp(inputContainer, "TopK\n") == 0) {
             for (i = 1; i < lunghezzaClassifica+1; i++) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
                 if(i <= maxHeapPtr->size)
-                    printf("%d ",maxHeapPtr->array[i]->gIndex);
+                    printf("%d",maxHeapPtr->array[i]->gIndex);
                 else{
                     printf("\n");
                     break;
@@ -540,15 +540,15 @@ int main() {
             }
         }
     }
-    puts("\n");
+    puts("");
     //TODO eliminazione maxHeap useless togli quando metti su server------------------------------------------
-    free(graph->adjListArray);
-    free(graph);
-
-    for(i=1; i<lunghezzaClassifica+1; i++){
-        free(maxHeapPtr->array[i]);
-    }
-    free(maxHeapPtr->array);
-    free(maxHeapPtr);
+//    free(graph->adjListArray);
+//    free(graph);
+//
+//    for(i=1; i<lunghezzaClassifica+1; i++){
+//        free(maxHeapPtr->array[i]);
+//    }
+//    free(maxHeapPtr->array);
+//    free(maxHeapPtr);
     return 0;
 }
