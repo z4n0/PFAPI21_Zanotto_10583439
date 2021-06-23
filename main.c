@@ -18,13 +18,6 @@ typedef struct{
     EdgeNode** adjListArray;
 }Graph;
 
-EdgeNode* newEdgeNode(int dest, long weight){
-    EdgeNode* newNode = malloc(sizeof(EdgeNode));
-    newNode->destinationVertex = dest;
-    newNode->edgeWeight = weight;
-    newNode->next = NULL;
-    return newNode;
-}
 
 Graph* createGraph(){
     Graph* graph = malloc(sizeof(Graph));
@@ -37,7 +30,10 @@ Graph* createGraph(){
 
 void addEdge(Graph* graph, int start, int dest, long weight){
     //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello o una freccia di ritorno a zero
-    EdgeNode* newNode = newEdgeNode(dest,weight);
+    EdgeNode* newNode = malloc(sizeof(EdgeNode));
+    newNode->destinationVertex = dest;
+    newNode->edgeWeight = weight;
+    newNode->next = NULL;
     newNode->next = graph->adjListArray[start];
     graph->adjListArray[start] = newNode;
 }
