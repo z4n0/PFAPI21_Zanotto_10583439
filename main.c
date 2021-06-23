@@ -116,18 +116,14 @@ void fib_Heap_insert(FibHeap *H, FibNode* newNode){
 }
 
 
-void byPassedBySiblings(FibNode* nodeToBypass){
-    nodeToBypass->left->right = nodeToBypass->right;
-    nodeToBypass->right->left = nodeToBypass->left;
-}
-
-
 //viene rimosso dalla rootList, y diventa figlio di x, x aumenta di grado e y viene unmarked o lo rimane
 //y diventa x chld solo se è lunico figlio di x se no si mette alla dx di x child
 void fib_Heap_Link(FibNode* y, FibNode* x){
     //remove y from root list of H
     //collego i vicini di y nella rootList
-    byPassedBySiblings(y);
+    y->left->right = y->right;
+    y->right->left = y->left;
+    //byPassedBySiblings(y);
 
     y->parent = x; //make y child of x
 
@@ -241,7 +237,9 @@ FibNode* fib_Extract_Min(FibHeap *H) {
             nodeToExtract->degree = 0;
         }
         //remove nodetoExtract from the rootList
-        byPassedBySiblings(nodeToExtract);
+        //byPassedBySiblings(nodeToExtract);
+        nodeToExtract->left->right =nodeToExtract->right;
+        nodeToExtract->right->left = nodeToExtract->left;
 
         //caso un solo elemento era presente --> ora la rootList è vuota
         if (nodeToExtract == nodeToExtract->right) {
@@ -267,7 +265,9 @@ void Cut(FibHeap* H, FibNode *nodeToBeCut, FibNode *parentNode)
     parentNode->degree--;
 
     //preparo condizioni per eliminazione di nodeToBeCut
-    byPassedBySiblings(nodeToBeCut);
+    //byPassedBySiblings(nodeToBeCut);
+    nodeToBeCut->left->right = nodeToBeCut->right;
+    nodeToBeCut->right->left = nodeToBeCut->left;
 
     //il nodo tagliato ora punta a se stesso
     nodeToBeCut->right = nodeToBeCut;
@@ -379,21 +379,12 @@ MinHeap* createMinHeap(){
     return minHeap;
 }
 
-int map(MinHeap* heap, int vertexId){
-    return heap->positionArray[vertexId];
-}
-
 void swapMinHeapNode(MinHeapNode** a, MinHeapNode** b){
     MinHeapNode *temp= *a;
     *a = *b;
     *b = temp;
 }
 
-//swap value in the position array
-void swapPositions(MinHeap* minHeap, int childIndex, int parentIndex){
-    minHeap->positionArray[minHeap->array[childIndex]->vertexIndex] = parentIndex; // minHeap->positionArray[parentIndex]
-    minHeap->positionArray[minHeap->array[parentIndex]->vertexIndex] = childIndex;
-}
 
 void minHeapify(MinHeap* minHeap, int index)
 {
@@ -411,7 +402,9 @@ void minHeapify(MinHeap* minHeap, int index)
     if (minPos != index)
     {
         // Swap positions--> the node with less distance is going up the heap --> array[minPos] take the position of array[index]
-        swapPositions(minHeap, minPos, index);
+        //swapPositions(minHeap, minPos, index);
+        minHeap->positionArray[minHeap->array[minPos]->vertexIndex] = index; // minHeap->positionArray[parentIndex]
+        minHeap->positionArray[minHeap->array[index]->vertexIndex] = minPos;
         swapMinHeapNode(&minHeap->array[minPos], &minHeap->array[index]);
         minHeapify(minHeap, minPos);
     }
@@ -424,7 +417,9 @@ MinHeapNode* extractMin(MinHeap* minHeap){
         return NULL;
     }
 
-    swapPositions(minHeap,1,minHeap->size);
+    //swapPositions(minHeap,1,minHeap->size);
+    minHeap->positionArray[minHeap->array[1]->vertexIndex] = minHeap->size; // minHeap->positionArray[parentIndex]
+    minHeap->positionArray[minHeap->array[minHeap->size]->vertexIndex] = 1;
     MinHeapNode* min = minHeap->array[1]; //estraggo la radice
     minHeap->array[1] = minHeap->array[minHeap->size]; //la radice diventa lultimo elemento
 
@@ -436,12 +431,14 @@ MinHeapNode* extractMin(MinHeap* minHeap){
 
 void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
 
-    int arrayHeapIndex = map(minHeap,vertexIndex);
+    int arrayHeapIndex = minHeap->positionArray[vertexIndex];
     minHeap->array[arrayHeapIndex]->distance = dist; //aggiorno la distanza nell array heaP
 
     while (arrayHeapIndex != 1 && minHeap->array[arrayHeapIndex]->distance < minHeap->array[(arrayHeapIndex)/2]->distance){
         //sposto in alto i nodi con distanza minore
-        swapPositions(minHeap,arrayHeapIndex,(arrayHeapIndex)/2); //aggiorno posizione nodi scambiati
+        //swapPositions(minHeap,arrayHeapIndex,(arrayHeapIndex)/2); //aggiorno posizione nodi scambiati
+        minHeap->positionArray[minHeap->array[arrayHeapIndex]->vertexIndex] = arrayHeapIndex/2; // minHeap->positionArray[parentIndex]
+        minHeap->positionArray[minHeap->array[(arrayHeapIndex)/2]->vertexIndex] = arrayHeapIndex;
         swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[(arrayHeapIndex)/2]); //scambio nodi
 
         arrayHeapIndex = (arrayHeapIndex)/2; //mi muovo verso lalto
@@ -582,20 +579,6 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
     }
 }
 
-void topK(MaxHeap* maxHeapPtr){
-    for (int i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
-        if(i <= maxHeapPtr->size)
-            if(i==maxHeapPtr->size){
-                printf("%d",maxHeapPtr->array[i]->gIndex);
-            }else{
-                printf("%d ",maxHeapPtr->array[i]->gIndex);
-            }
-        else{
-            printf("\n");
-            break;
-        }
-    }
-}
 
 int main() {
     FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
@@ -674,7 +657,18 @@ int main() {
                 insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
-                topK(maxHeapPtr);
+                for (i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
+                    if(i <= maxHeapPtr->size)
+                        if(i==maxHeapPtr->size){
+                            printf("%d",maxHeapPtr->array[i]->gIndex);
+                        }else{
+                            printf("%d ",maxHeapPtr->array[i]->gIndex);
+                        }
+                    else{
+                        printf("\n");
+                        break;
+                    }
+                }
             }
         }
 //            free(minHeapPtr->array);
@@ -718,7 +712,18 @@ int main() {
                 insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
-                topK(maxHeapPtr);
+                for (int i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
+                    if(i <= maxHeapPtr->size)
+                        if(i==maxHeapPtr->size){
+                            printf("%d",maxHeapPtr->array[i]->gIndex);
+                        }else{
+                            printf("%d ",maxHeapPtr->array[i]->gIndex);
+                        }
+                    else{
+                        printf("\n");
+                        break;
+                    }
+                }
             }
         }
 //        free(fibHeapPtr->staticPointers);
