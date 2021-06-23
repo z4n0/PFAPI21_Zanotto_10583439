@@ -307,10 +307,10 @@ void fib_Heap_DecreaseKey(FibHeap* H, FibNode* nodeToDecrease, int newDistance){
 //_---------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------
 int dijkstraFibHeap(Graph* graph,FibHeap *fibHeapPtr) {
-    int sommaCamminiMinimi=0;
-    int i,u,v;
+    int sommaCamminiMinimi; //TODO occhio a non aver fatto assegnamento potrebbe dare problemi in futuro
+    int u,v;
 
-    for (i = 0; i < numberOfVertices; ++i){
+    for (int i = 0; i < numberOfVertices; ++i){
         FibNode* newNode = createNewFibNode(i, INF); //creo nuovo nodo con dist infinito
         fibHeapPtr->staticPointers[i] = newNode; //lo assegno ad uno static pointer
         fib_Heap_insert(fibHeapPtr,newNode); //lo inserisco nella Heap
@@ -435,7 +435,10 @@ void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
         //swapPositions(minHeap,arrayHeapIndex,(arrayHeapIndex)/2); //aggiorno posizione nodi scambiati
         minHeap->positionArray[minHeap->array[arrayHeapIndex]->vertexIndex] = arrayHeapIndex/2; // minHeap->positionArray[parentIndex]
         minHeap->positionArray[minHeap->array[(arrayHeapIndex)/2]->vertexIndex] = arrayHeapIndex;
-        swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[(arrayHeapIndex)/2]); //scambio nodi
+        MinHeapNode *temp= minHeap->array[arrayHeapIndex];
+        minHeap->array[arrayHeapIndex] = minHeap->array[(arrayHeapIndex)/2];
+        minHeap->array[(arrayHeapIndex)/2] = temp;
+        //swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[(arrayHeapIndex)/2]); //scambio nodi
 
         arrayHeapIndex = (arrayHeapIndex)/2; //mi muovo verso lalto
     }
@@ -581,7 +584,7 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_1", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -606,7 +609,7 @@ int main() {
     lunghezzaClassifica = strtol(end,NULL,10);
 
     //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
-    long int maxCommandLenght = numberOfVertices*5+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
+    long int maxCommandLenght = (numberOfVertices+1)*4+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
     char inputContainer[maxCommandLenght]; //Container per linput
 
     //lettura comandi  2 casi possibili
