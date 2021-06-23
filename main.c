@@ -598,13 +598,13 @@ void topK(MaxHeap* maxHeapPtr){
 }
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PROGETTOAPIUBUNTU/open_tests/input_6", "r"); // read only
-//
-//    // test for files not existing.
-//    if (fp == NULL) {
-//        perror(fp);
-//        exit(-1);
-//    }
+    FILE *fp = fopen("/home/zano/Desktop/PROGETTOAPIUBUNTU/open_tests/input_1", "r"); // read only
+
+    // test for files not existing.
+    if (fp == NULL) {
+        perror(fp);
+        exit(-1);
+    }
 
     //ARRAY di char che conterrano il primo comando
     char firstcommand[MAX_FIRSTCOMMANDLENGHT];
@@ -612,7 +612,7 @@ int main() {
     int i,j;
 
     //lettura primo comando
-    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, stdin) == NULL) {
+    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
         return -1;
     }//es. "11,2"
     char* string,*end;
@@ -623,7 +623,7 @@ int main() {
     lunghezzaClassifica = (int) strtol(end,NULL,10);
 
     //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
-    int maxCommandLenght = numberOfVertices*4+numberOfVertices+numberOfVertices/2; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
+    int maxCommandLenght = numberOfVertices*5+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
     char inputContainer[maxCommandLenght]; //Container per linput
 
     //lettura comandi  2 casi possibili
@@ -638,7 +638,7 @@ int main() {
 
     if(numberOfVertices < 100){
         MinHeap* minHeapPtr = createMinHeap();
-        while (fgets(inputContainer, maxCommandLenght, stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght, fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -651,7 +651,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; i++) {
-                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
@@ -682,7 +682,7 @@ int main() {
 //            free(minHeapPtr);
     }else{
         FibHeap* fibHeapPtr = create_Fib_Heap();
-        while (fgets(inputContainer, maxCommandLenght, stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -695,7 +695,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; i++) {
-                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
