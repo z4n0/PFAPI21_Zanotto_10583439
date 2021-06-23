@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#define MAX_NUMBERCONTAINER 5
 #define MAX_FIRSTCOMMANDLENGHT 14
 #define INF 9999999
 
@@ -19,14 +18,6 @@ typedef struct{
     EdgeNode** adjListArray;
 }Graph;
 
-EdgeNode* newEdgeNode(int dest, int weight){
-    EdgeNode* newNode = malloc(sizeof(EdgeNode));
-    newNode->destinationVertex = dest;
-    newNode->edgeWeight = weight;
-    newNode->next = NULL;
-    return newNode;
-}
-
 Graph* createGraph(){
     Graph* graph = malloc(sizeof(Graph));
     graph->adjListArray = malloc(numberOfVertices * sizeof (EdgeNode*));
@@ -36,13 +27,13 @@ Graph* createGraph(){
     return graph;
 }
 
+//alloca un Edge e inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello o una freccia di ritorno a zero
 void addEdge(Graph* graph, int start, int dest, int weight){
-    //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello o una freccia di ritorno a zero
-    if(weight>0 && start!=dest && dest != 0){
-        EdgeNode* newNode = newEdgeNode(dest,weight);
-        newNode->next = graph->adjListArray[start];
-        graph->adjListArray[start] = newNode;
-    }
+    EdgeNode* newNode = malloc(sizeof(EdgeNode));
+    newNode->destinationVertex = dest;
+    newNode->edgeWeight = weight;
+    newNode->next = graph->adjListArray[start];
+    graph->adjListArray[start] = newNode;
 }
 
 // start of MinHeap Structure---------------------------------------
@@ -311,10 +302,9 @@ void fib_Heap_DecreaseKey(FibHeap* H, FibNode* nodeToDecrease, int newDistance){
 }
 
 //TODO what if non ricreo tutte le volte il grafico e la minHeap tanto alla fine sono entrambi vuoti mi basta crearli una volta sola ed eliminarli una volta sola
-int dijkstra(Graph* graph) {
+int dijkstra(Graph* graph,FibHeap *fibHeapPtr) {
     int sommaCamminiMinimi=0;
     int i;
-    FibHeap* fibHeapPtr = create_Fib_Heap();
 
     for (i = 0; i < numberOfVertices; i++){
         FibNode* newNode = createNewFibNode(i, INF); //creo nuovo nodo con dist infinito
@@ -350,9 +340,6 @@ int dijkstra(Graph* graph) {
         free(minDistanceNode); //delete the node extracted from minHeap
         fibHeapPtr->staticPointers[u] = NULL; //lo static ptr non punta piu a nulla perche quel nodo è eliminato dalla heap per sempre
     }
-
-    free(fibHeapPtr->staticPointers);
-    free(fibHeapPtr);
     return sommaCamminiMinimi;
 }
 
@@ -449,40 +436,30 @@ void insert (MaxHeap* maxHeap, int key, int gIndex){
 }
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
-//
-//    // test for files not existing.
-//    if (fp == NULL) {
-//        perror(fp);
-//        exit(-1);
-//    }
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r");
 
-    //ARRAY di char che conterrano il primo comando
-    char numberContainer[MAX_NUMBERCONTAINER];
-    char firstcommand[MAX_FIRSTCOMMANDLENGHT];
-
-
-    //lettura primo comando
-    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, stdin) == NULL) {
-        return -1;
-    }//es. "11,2"
-
-    int i = 0; //indice firstCommand
-    int j = 0; //indice numberContainer
-
-    while (firstcommand[i] != '\n') {
-        //inserisco i numeri in n
-        numberContainer[j++] = firstcommand[i++];
-
-        if (firstcommand[i] == ' ') {
-            numberOfVertices = (int) strtol(numberContainer, NULL, 10); //converte da array a int
-            memset(numberContainer, 0, MAX_NUMBERCONTAINER);
-            j = 0;
-            i++;
-        }
+    // test for files not existing.
+    if (fp == NULL) {
+        perror(fp);
+        exit(-1);
     }
 
-    lunghezzaClassifica = (int) strtol(numberContainer, NULL, 10);
+    //ARRAY di char che conterrano il primo comando
+    char firstcommand[MAX_FIRSTCOMMANDLENGHT];
+
+    int i,j;
+
+    //lettura primo comando
+    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
+        return -1;
+    }//es. "11,2"
+    char* string,*end;
+
+    string = firstcommand;
+
+    numberOfVertices = (int)strtol(string,&end,10);
+    lunghezzaClassifica = (int) strtol(end,NULL,10);
+
     //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
     int maxCommandLenght = numberOfVertices*5+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
     char inputContainer[maxCommandLenght]; //Container per linput
@@ -495,13 +472,14 @@ int main() {
     int numeroCamminiMinimi;
 
     Graph* graph= createGraph(); //creo il grafo
+    FibHeap* fibHeapPtr = create_Fib_Heap();
     MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
 
-    while (fgets(inputContainer, maxCommandLenght, stdin) != NULL) { //fino a che si puo leggere
+    while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
         if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
             graphIndex++;
-            if(graphIndex!=0){
+            if(graphIndex!=0){ //TODO prova ad eliminare sto ciclo
                 for(i=0; i<numberOfVertices; i++){
                     graph->adjListArray[i]=NULL;
                 }
@@ -510,27 +488,29 @@ int main() {
 
             //Se il comando è di aggiungi grafo -->leggi la matrice nxn
             for (i = 0; i < numberOfVertices; i++) {
-                if(fgets(inputContainer, maxCommandLenght, stdin)==NULL){
+                if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
                     return 1;
                 };    //leggo riga matrice
-                strtok(inputContainer, "\n");   //elimino il\n dalla riga letta
 
-                //separo i numeri della riga
-                char *edgeWeightToken = strtok(inputContainer, ",");
                 j = 0; //indice delle colonne
+                string = inputContainer;
 
 //              walk through other number of the Line
-                while (edgeWeightToken != NULL) {
-                    //printf(" %s\n", edgeWeightToken );
-                    int edgeWeight = (int) strtol(edgeWeightToken, NULL, 10);
-                    //(int) strtol(edgeWeightToken, NULL, 10);//converto il token a int
-                    addEdge(graph, i, j++, edgeWeight); //aggiungo edge al grafo
-                    edgeWeightToken = strtok(NULL, ","); //vado al next token
+                while (1) {
+                    int edgeWeight =(int) strtol(string, &end, 10);
+                    if (string == end)
+                        break;
+                    if(edgeWeight>0 && i!=j && j!=0){
+                        addEdge(graph, i, j, edgeWeight); //aggiungo edge al grafo
+                    }
+                    j++;
+                    string = end+1;
                 }
             }
 
-            numeroCamminiMinimi = dijkstra(graph); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
+            numeroCamminiMinimi = dijkstra(graph,fibHeapPtr); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
             insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
+
         } else if (strcmp(inputContainer, "TopK\n") == 0) {
             for (i = 1; i < lunghezzaClassifica+1; i++) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
                 if(i <= maxHeapPtr->size)
@@ -550,6 +530,8 @@ int main() {
     //TODO eliminazione maxHeap useless togli quando metti su server------------------------------------------
 //    free(graph->adjListArray);
 //    free(graph);
+//      free(fibHeapPtr->staticPointers);
+//      free(fibHeapPtr);
 //
 //    for(i=1; i<lunghezzaClassifica+1; i++){
 //        free(maxHeapPtr->array[i]);
