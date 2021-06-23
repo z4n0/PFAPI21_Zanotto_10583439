@@ -5,11 +5,12 @@
 #define MAX_FIRSTCOMMANDLENGHT 14
 #define INF 9999999
 
-long int numberOfVertices;
-long int lunghezzaClassifica;
+
+    int numberOfVertices;
+    int lunghezzaClassifica;
 
 typedef struct edge_node{
-    long edgeWeight;
+    int edgeWeight;
     int destinationVertex;
     struct edge_node* next;
 }EdgeNode;
@@ -28,7 +29,7 @@ Graph* createGraph(){
     return graph;
 }
 
-void addEdge(Graph* graph, int start, int dest, long weight){
+void addEdge(Graph* graph, int start, int dest, int weight){
     //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello o una freccia di ritorno a zero
     EdgeNode* newNode = malloc(sizeof(EdgeNode));
     newNode->destinationVertex = dest;
@@ -605,11 +606,11 @@ int main() {
 
     string = firstcommand;
 
-    numberOfVertices = strtol(string,&end,10);
-    lunghezzaClassifica = strtol(end,NULL,10);
+    numberOfVertices =(int) strtol(string,&end,10);
+    lunghezzaClassifica =(int) strtol(end,NULL,10);
 
     //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
-    long int maxCommandLenght = (numberOfVertices+1)*4+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
+    int maxCommandLenght = (numberOfVertices+1)*4+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
     char inputContainer[maxCommandLenght]; //Container per linput
 
     //lettura comandi  2 casi possibili
@@ -646,7 +647,7 @@ int main() {
 
 //              walk through other number of the Line
                     while (1) {
-                        long edgeWeight = strtol(string, &end, 10);
+                        int edgeWeight =(int) strtol(string, &end, 10);
                         if (string == end)
                             break;
                         if(edgeWeight>0 && i!=j && j!=0)
@@ -701,7 +702,7 @@ int main() {
 
 //              walk through other number of the Line
                     while (1) {
-                        long edgeWeight = strtol(string, &end, 10);
+                        int edgeWeight =(int) strtol(string, &end, 10);
                         if (string == end)
                             break;
                         if(edgeWeight>0 && i!=j && j!=0)
