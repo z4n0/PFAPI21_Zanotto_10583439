@@ -5,11 +5,11 @@
 #define MAX_FIRSTCOMMANDLENGHT 14
 #define INF 9999999
 
-int numberOfVertices;
-int lunghezzaClassifica;
+long numberOfVertices;
+long lunghezzaClassifica;
 
 typedef struct edge_node{
-    int edgeWeight;
+    long edgeWeight;
     int destinationVertex;
     struct edge_node* next;
 }EdgeNode;
@@ -18,7 +18,7 @@ typedef struct{
     EdgeNode** adjListArray;
 }Graph;
 
-EdgeNode* newEdgeNode(int dest, int weight){
+EdgeNode* newEdgeNode(int dest, long weight){
     EdgeNode* newNode = malloc(sizeof(EdgeNode));
     newNode->destinationVertex = dest;
     newNode->edgeWeight = weight;
@@ -29,13 +29,13 @@ EdgeNode* newEdgeNode(int dest, int weight){
 Graph* createGraph(){
     Graph* graph = malloc(sizeof(Graph));
     graph->adjListArray = malloc(numberOfVertices * sizeof (EdgeNode*));
-    for(int i=0; i<numberOfVertices; i++){
+    for(int i=0; i<numberOfVertices; ++i){
         graph->adjListArray[i]=NULL;
     }
     return graph;
 }
 
-void addEdge(Graph* graph, int start, int dest, int weight){
+void addEdge(Graph* graph, int start, int dest, long weight){
     //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello o una freccia di ritorno a zero
     EdgeNode* newNode = newEdgeNode(dest,weight);
     newNode->next = graph->adjListArray[start];
@@ -153,7 +153,7 @@ void consolidate(FibHeap* H){
     int i,d;
     FibNode *x,*y;
 
-    for(i=0; i < degree; i++){
+    for(i=0; i < degree; ++i){
         ArrayOfPointer[i]=NULL;
     }
 
@@ -201,7 +201,7 @@ void consolidate(FibHeap* H){
     //-----------------------ora ho larray che punta agli alberi rimasti
     H->min = NULL;
     //loop to search for the new min
-    for (i = 0; i < degree; i++) {
+    for (i = 0; i < degree; ++i) {
         if(H->min == NULL && ArrayOfPointer[i] != NULL){
             H->min = ArrayOfPointer[i];
         }else if(ArrayOfPointer[i] != NULL && H->min!=NULL) {
@@ -230,7 +230,7 @@ FibNode* fib_Extract_Min(FibHeap *H) {
 
     if (nodeToExtract != NULL) {
         if(nodeToExtract->child != NULL) {
-            for (int i = 0; i < nodeToExtract->degree; i++) { //il node child rimane invarito a fine ciclo torna dove ha iniziato
+            for (int i = 0; i < nodeToExtract->degree; ++i) { //il node child rimane invarito a fine ciclo torna dove ha iniziato
                 nodeToExtract->child->parent = NULL;
                 nodeToExtract->child = nodeToExtract->child->right;
             }
@@ -314,7 +314,7 @@ int dijkstraFibHeap(Graph* graph,FibHeap *fibHeapPtr) {
     int sommaCamminiMinimi=0;
     int i,u,v;
 
-    for (i = 0; i < numberOfVertices; i++){
+    for (i = 0; i < numberOfVertices; ++i){
         FibNode* newNode = createNewFibNode(i, INF); //creo nuovo nodo con dist infinito
         fibHeapPtr->staticPointers[i] = newNode; //lo assegno ad uno static pointer
         fib_Heap_insert(fibHeapPtr,newNode); //lo inserisco nella Heap
@@ -452,7 +452,7 @@ void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
 int dijkstraBinHeap(Graph* graph, MinHeap *minHeap) {
     int u,v,i;
     int sommaCamminiMinimi = 0;
-    for (i = 1; i <= numberOfVertices; i++) {
+    for (i = 1; i <= numberOfVertices; ++i) {
         minHeap->array[i] = newMinHeapNode(i-1, INF);
         minHeap->positionArray[i-1] = i;
     }
@@ -583,7 +583,7 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 }
 
 void topK(MaxHeap* maxHeapPtr){
-    for (int i = 1; i < lunghezzaClassifica+1; i++) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
+    for (int i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
         if(i <= maxHeapPtr->size)
             if(i==maxHeapPtr->size){
                 printf("%d",maxHeapPtr->array[i]->gIndex);
@@ -598,7 +598,7 @@ void topK(MaxHeap* maxHeapPtr){
 }
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PROGETTOAPIUBUNTU/open_tests/input_1", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -619,8 +619,8 @@ int main() {
 
     string = firstcommand;
 
-    numberOfVertices = (int)strtol(string,&end,10);
-    lunghezzaClassifica = (int) strtol(end,NULL,10);
+    numberOfVertices = strtol(string,&end,10);
+    lunghezzaClassifica = strtol(end,NULL,10);
 
     //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
     int maxCommandLenght = numberOfVertices*5+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
@@ -643,14 +643,14 @@ int main() {
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
                 if(graphIndex != 0 ){ //TODO prova ad eliminare sto ciclo
-                    for(i=0; i<numberOfVertices; i++){
+                    for(i=0; i<numberOfVertices; ++i){
                         graph->adjListArray[i]=NULL;
                     }
                 }
                 memset(inputContainer, 0,maxCommandLenght); //svuoto inputContainer
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
-                for (i = 0; i < numberOfVertices; i++) {
+                for (i = 0; i < numberOfVertices; ++i) {
                     if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
@@ -660,13 +660,13 @@ int main() {
 
 //              walk through other number of the Line
                     while (1) {
-                        int edgeWeight =(int) strtol(string, &end, 10);
+                        long edgeWeight = strtol(string, &end, 10);
                         if (string == end)
                             break;
                         if(edgeWeight>0 && i!=j && j!=0)
                             addEdge(graph, i, j, edgeWeight); //aggiungo edge al grafo
                         string = end+1;
-                        j++;
+                        ++j;
                     }
                 }
 
@@ -687,14 +687,14 @@ int main() {
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
                 if(graphIndex != 0 ){ //TODO prova ad eliminare sto ciclo
-                    for(i=0; i<numberOfVertices; i++){
+                    for(i=0; i<numberOfVertices; ++i){
                         graph->adjListArray[i]=NULL;
                     }
                 }
                 memset(inputContainer, 0,maxCommandLenght); //svuoto inputContainer
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
-                for (i = 0; i < numberOfVertices; i++) {
+                for (i = 0; i < numberOfVertices; ++i) {
                     if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
@@ -704,7 +704,7 @@ int main() {
 
 //              walk through other number of the Line
                     while (1) {
-                        int edgeWeight =(int) strtol(string, &end, 10);
+                        long edgeWeight = strtol(string, &end, 10);
                         if (string == end)
                             break;
                         if(edgeWeight>0 && i!=j && j!=0)
