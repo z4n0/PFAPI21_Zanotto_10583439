@@ -5,8 +5,8 @@
 #define MAX_FIRSTCOMMANDLENGHT 14
 #define INF 9999999
 
-long numberOfVertices;
-long lunghezzaClassifica;
+long int numberOfVertices;
+long int lunghezzaClassifica;
 
 typedef struct edge_node{
     long edgeWeight;
@@ -529,7 +529,11 @@ void increase_key(MaxHeap* maxHeap, int index, int key) {
     maxHeap->array[index]->camminiMinimi = key;
 
     while((index>1) && (maxHeap->array[index/2]->camminiMinimi <= maxHeap->array[index]->camminiMinimi)) {
-        swapMaxH(&maxHeap->array[index], &maxHeap->array[index/2]); //è un UP_heapify
+        GraphHeapNode* t;
+        t = maxHeap->array[index];
+        maxHeap->array[index] = maxHeap->array[index/2];
+        maxHeap->array[index/2] = t;
+        //swapMaxH(&maxHeap->array[index], &maxHeap->array[index/2]); //è un UP_heapify
         index = index/2;  //move to parent
     }
 }
@@ -581,7 +585,7 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_1", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -606,7 +610,7 @@ int main() {
     lunghezzaClassifica = strtol(end,NULL,10);
 
     //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
-    int maxCommandLenght = numberOfVertices*5+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
+    long int maxCommandLenght = numberOfVertices*5+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
     char inputContainer[maxCommandLenght]; //Container per linput
 
     //lettura comandi  2 casi possibili
