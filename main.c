@@ -349,7 +349,7 @@ int fib_uniform_Cost_Search(Graph* graph, FibHeap *fibHeapPtr,int* explored) {
             temp = temp->next; //leggo il prossimo edge node
             free(deleteGraphEdge);
         }
-        //free(minDistanceNode); //delete the node extracted from minHeap
+        free(minDistanceNode); //delete the node extracted from minHeap
     }
 
 //    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
@@ -511,7 +511,7 @@ int bin_Uniform_Cost_Search(Graph* graph, MinHeap *binHeapPtr, int* explored) {
             temp = temp->next; //leggo il prossimo edge node
             free(deleteGraphEdge);
         }
-        //free(minDistanceNode); //delete the node extracted from minHeap
+        free(minDistanceNode); //delete the node extracted from minHeap
     }
 
 //    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
@@ -629,13 +629,13 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
-//
-//    // test for files not existing.
-//    if (fp == NULL) {
-//        perror(fp);
-//        exit(-1);
-//    }
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
+
+    // test for files not existing.
+    if (fp == NULL) {
+        perror(fp);
+        exit(-1);
+    }
 
     //ARRAY di char che conterrano il primo comando
     char firstcommand[MAX_FIRSTCOMMANDLENGHT];
@@ -643,7 +643,7 @@ int main() {
     int i,j;
 
     //lettura primo comando
-    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, stdin) == NULL) {
+    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
         return -1;
     }//es. "11,2"
     char* string,*end;
@@ -666,11 +666,12 @@ int main() {
 
     Graph* graph= createGraph(); //creo il grafo
     MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
-    int* explored = malloc((numberOfVertices)*sizeof(int)); //support for the Uniform cost search
+    //int* explored = malloc((numberOfVertices)*sizeof(int)); //support for the Uniform cost search
+    int explored[numberOfVertices];
 
-    if(numberOfVertices < 100){
+    if(numberOfVertices < 150){
         MinHeap* minHeapPtr = createMinHeap();
-        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -683,7 +684,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i) {
-                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
@@ -724,7 +725,7 @@ int main() {
 //            free(minHeapPtr);
     }else{
         FibHeap* fibHeapPtr = create_Fib_Heap();
-        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -737,7 +738,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i){
-                    if(fgets(inputContainer, maxCommandLenght,stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght,fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
