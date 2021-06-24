@@ -367,47 +367,6 @@ int fib_uniform_Cost_Search(Graph* graph, FibHeap *fibHeapPtr,int* explored) {
 }
 
 
-int dijkstraFibHeap(Graph* graph,FibHeap *fibHeapPtr) {
-    int sommaCamminiMinimi=0; //TODO occhio a non aver fatto assegnamento potrebbe dare problemi in futuro
-    int u,v;
-
-    for (int i = 0; i < numberOfVertices; ++i){
-        FibNode* newNode = createNewFibNode(i, INF); //creo nuovo nodo con dist infinito
-        fibHeapPtr->staticPointers[i] = newNode; //lo assegno ad uno static pointer
-        fib_Heap_insert(fibHeapPtr,newNode); //lo inserisco nella Heap
-    }
-
-    fibHeapPtr->size = numberOfVertices; //aggiorno la dimensione della Heap
-    fibHeapPtr->min->distance = 0; //aggiorno distanza del nodo zero a zero NB nodo zero è sempre puntato da h->min alla fine della creazione
-    while (fibHeapPtr->size != 0){ //fino a che la heap non è vuota
-        FibNode *minDistanceNode = fib_Extract_Min(fibHeapPtr);
-
-        if(minDistanceNode==NULL)
-            return sommaCamminiMinimi;
-        //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
-        if (minDistanceNode->distance != INF ) {
-            sommaCamminiMinimi += minDistanceNode->distance;
-        }
-
-        u=minDistanceNode->index;
-        EdgeNode *temp = graph->adjListArray[u];
-        while (temp != NULL) {
-            v = temp->destinationVertex;
-            if (fibHeapPtr->staticPointers[v]!=NULL && fibHeapPtr->staticPointers[v]->distance > temp->edgeWeight + minDistanceNode->distance) {
-                fib_Heap_DecreaseKey(fibHeapPtr,fibHeapPtr->staticPointers[v],minDistanceNode->distance + temp->edgeWeight);
-            }
-            EdgeNode* delete = temp;
-            temp = temp->next;
-            free(delete);
-        }
-
-        free(minDistanceNode); //delete the node extracted from minHeap
-        fibHeapPtr->staticPointers[u] = NULL; //lo static ptr non punta piu a nulla perche quel nodo è eliminato dalla heap per sempre
-    }
-    return sommaCamminiMinimi;
-}
-
-
 // start of MinHeap Structure---------------------------------------
 typedef struct {
     int vertexIndex;
@@ -505,41 +464,66 @@ void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
     }
 }
 
+void min_Bin_Heap_insert (MinHeap * minHeap, int key, int gIndex){
+    MinHeapNode * newNode;
+    minHeap->size++;
+    newNode = newMinHeapNode(gIndex,INFINITY); //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
+    minHeap->array[minHeap->size] = newNode; //lo inserisco alla fine (lo faccio puntare all ultimno posto
+    minHeap->positionArray[gIndex] = minHeap->size;
+    decreaseDistance(minHeap, gIndex , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
+}
 
-int dijkstraBinHeap(Graph* graph, MinHeap *minHeap) {
-    int u,v,i;
-    int sommaCamminiMinimi = 0;
-    for (i = 1; i <= numberOfVertices; ++i) {
-        minHeap->array[i] = newMinHeapNode(i-1, INF);
-        minHeap->positionArray[i-1] = i;
-    }
+int bin_Uniform_Cost_Search(Graph* graph, MinHeap *binHeapPtr, int* explored) {
+    int sommaCamminiMinimi=0;
+    //frontier Q contiene i  vicini da poter visitare
+    //explored = contenitore per i nodi che abbbiamo gia visitato
+    memset(explored,0,sizeof(int)*(numberOfVertices));
 
-    minHeap->array[1]->distance = 0;
+    //MinHeapNode * nodeZero = newMinHeapNode(0, 0); //creo nuovo nodo con dist infinito
+    min_Bin_Heap_insert(binHeapPtr,0,0); //NB si occupa gia lei di allocare il nuovo nodo
+    //FIbHEap Q contiene i  vicini da poter visitare
+    //keep track of explored verteces, 0 if is unexplored 1 if explored temporary 2 if extracted-> made permanent
 
-    minHeap->size = numberOfVertices;
 
-    while (minHeap->size != 0) { //fino a che la heap non è vuota
-        MinHeapNode *minDistanceNode = extractMin(minHeap);
-        /*if(minDistanceNode==NULL)
-            return 0;
+    while (binHeapPtr->size != 0){ //fino a che la heap non è vuota
+        int u,v;
+        MinHeapNode *minDistanceNode = extractMin(binHeapPtr);
         //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
-        if (minDistanceNode->distance != INF ) {
-            sommaCamminiMinimi += minDistanceNode->distance;
-        }
+        sommaCamminiMinimi += minDistanceNode->distance; //verranno inseriti solo nodi raggiungibili quindi non ho bisogno di controlli
 
-        u = minDistanceNode->vertexIndex;
+        u = minDistanceNode->vertexIndex; //index del nodo estratto
+        explored[u]=2; //setto il nodo estratto a explored
 
         EdgeNode *temp = graph->adjListArray[u];
         while (temp != NULL) {
-            v=temp->destinationVertex;
-            if (minHeap->positionArray[v] <= minHeap->size && minHeap->array[minHeap->positionArray[v]]->distance > temp->edgeWeight + minDistanceNode->distance) {
-                decreaseDistance(minHeap, v,minDistanceNode->distance + temp->edgeWeight);
+            v = temp->destinationVertex; //leggo la sua adj list e aggiungo alla Heap tutti i suoi vicini non gia visitati con la loro distanza giusta
+            if (explored[v] != 2){ //se il nodo che posso raggiungere non è ancora stato estratto
+                if(explored[v]==0){ //se il nodo non è presente nella heap->lo creo e lo inserisco gia con la distanza giusta
+                    min_Bin_Heap_insert(binHeapPtr,minDistanceNode->distance + temp->edgeWeight,v);
+                    explored[v]=1;  //lo segno come esplorato
+                }else if(binHeapPtr->array[binHeapPtr->positionArray[v]]->distance > minDistanceNode->distance + temp->edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
+                    decreaseDistance(binHeapPtr,v, minDistanceNode->distance + temp->edgeWeight);
+                }
+                //TODO si puo eliminare i casi di explored 0,1 con static pointers inizializzandolo a NULL se punta a NULL allora non è nella heap(caso 0) else è nella heap (caso 1) il caso 2 invece puo essere gestito tramite il simbolo mark inserito nei nodi direttamente
+                //se il nodo puntato da static pointer ha mark = 2 allora è stato estratto
             }
-            EdgeNode* delete = temp;
-            temp = temp->next;
-            free(delete); //delete the edge of the Graph just read
+            EdgeNode* deleteGraphEdge = temp;
+            temp = temp->next; //leggo il prossimo edge node
+            free(deleteGraphEdge);
         }
         free(minDistanceNode); //delete the node extracted from minHeap
+    }
+
+    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
+        if(explored[i]==0){
+            EdgeNode *temp,*delete;
+            temp = graph->adjListArray[i];
+            while (temp!=NULL){
+                delete = temp;
+                temp = temp->next;
+                free(delete);
+            }
+        }
     }
     return sommaCamminiMinimi;
 }
@@ -717,8 +701,7 @@ int main() {
                         ++j;
                     }
                 }
-
-                numeroCamminiMinimi = dijkstraBinHeap(graph, minHeapPtr); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
+                numeroCamminiMinimi= bin_Uniform_Cost_Search(graph,minHeapPtr,explored);
                 insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
@@ -774,11 +757,10 @@ int main() {
                 }
 
                 numeroCamminiMinimi = fib_uniform_Cost_Search(graph,fibHeapPtr,explored);
-                //numeroCamminiMinimi = dijkstraFibHeap(graph, fibHeapPtr); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
                 insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
-                for (int i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
+                for (i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
                     if(i <= maxHeapPtr->size)
                         if(i==maxHeapPtr->size){
                             printf("%d",maxHeapPtr->array[i]->gIndex);
@@ -798,7 +780,7 @@ int main() {
 
     //TODO eliminazione maxHeap e Graph useless togli quando metti su server------------------------------------------
 
-    free(explored);
+   // free(explored);
 //    for(i=1; i<lunghezzaClassifica+1; i++){
 //        free(maxHeapPtr->array[i]);
 //    }
