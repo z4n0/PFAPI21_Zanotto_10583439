@@ -110,6 +110,7 @@ void fib_Heap_insert(FibHeap *H, FibNode* newNode){
             H->min = newNode;
         }
     }
+    H->size++;
 }
 
 
@@ -307,8 +308,67 @@ void fib_Heap_DecreaseKey(FibHeap* H, FibNode* nodeToDecrease, int newDistance){
 }
 //_---------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------
+int fib_uniform_Cost_Search(Graph* graph, FibHeap *fibHeapPtr,int* explored) {
+    int sommaCamminiMinimi=0;
+    //frontier Q contiene i  vicini da poter visitare
+    //explored = contenitore per i nodi che abbbiamo gia visitato
+    memset(explored,0,sizeof(int)*(numberOfVertices));
+
+    FibNode* nodeZero = createNewFibNode(0, 0); //creo nuovo nodo con dist infinito
+    fib_Heap_insert(fibHeapPtr,nodeZero);
+    //FIbHEap Q contiene i  vicini da poter visitare
+    //keep track of explored verteces, 0 if is unexplored 1 if explored temporary 2 if extracted-> made permanent
+    //explored[0] = 2; //node zero is already extracted-> made permanent
+
+
+    while (fibHeapPtr->size != 0){ //fino a che la heap non è vuota
+        int u,v;
+        FibNode *minDistanceNode = fib_Extract_Min(fibHeapPtr);
+        //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
+        sommaCamminiMinimi += minDistanceNode->distance; //verranno inseriti solo nodi raggiungibili quindi non ho bisogno di controlli
+
+        u = minDistanceNode->index; //index del nodo estratto
+        explored[u]=2; //setto il nodo estratto a explored
+
+        EdgeNode *temp = graph->adjListArray[u];
+        while (temp != NULL) {
+            v = temp->destinationVertex; //leggo la sua adj list e aggiungo alla Heap tutti i suoi vicini non gia visitati con la loro distanza giusta
+            if (explored[v] != 2){ //se il nodo che posso raggiungere non è ancora stato estratto
+                if(explored[v]==0){ //se il nodo non è presente nella heap->lo creo e lo inserisco gia con la distanza giusta
+                    FibNode* newFrontierNode = createNewFibNode(v,minDistanceNode->distance + temp->edgeWeight); //creo nodo del vicino
+                    fibHeapPtr->staticPointers[v]=newFrontierNode;
+                    fib_Heap_insert(fibHeapPtr,newFrontierNode); // lo aggiungo alla heap
+                    explored[v]=1;  //lo segno come esplorato
+                }else if(fibHeapPtr->staticPointers[v]->distance > minDistanceNode->distance+temp->edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
+                    fib_Heap_DecreaseKey(fibHeapPtr,fibHeapPtr->staticPointers[v],minDistanceNode->distance+temp->edgeWeight);
+                }
+                //TODO si puo eliminare i casi di explored 0,1 con static pointers inizializzandolo a NULL se punta a NULL allora non è nella heap(caso 0) else è nella heap (caso 1) il caso 2 invece puo essere gestito tramite il simbolo mark inserito nei nodi direttamente
+                //se il nodo puntato da static pointer ha mark = 2 allora è stato estratto
+            }
+            EdgeNode* deleteGraphEdge = temp;
+            temp = temp->next; //leggo il prossimo edge node
+            free(deleteGraphEdge);
+        }
+        free(minDistanceNode); //delete the node extracted from minHeap
+    }
+
+    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
+        if(explored[i]==0){
+            EdgeNode *temp,*delete;
+            temp = graph->adjListArray[i];
+            while (temp!=NULL){
+                delete = temp;
+                temp = temp->next;
+                free(delete);
+            }
+        }
+    }
+    return sommaCamminiMinimi;
+}
+
+
 int dijkstraFibHeap(Graph* graph,FibHeap *fibHeapPtr) {
-    int sommaCamminiMinimi; //TODO occhio a non aver fatto assegnamento potrebbe dare problemi in futuro
+    int sommaCamminiMinimi=0; //TODO occhio a non aver fatto assegnamento potrebbe dare problemi in futuro
     int u,v;
 
     for (int i = 0; i < numberOfVertices; ++i){
@@ -585,7 +645,7 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
@@ -610,7 +670,7 @@ int main() {
     lunghezzaClassifica =(int) strtol(end,NULL,10);
 
     //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
-    int maxCommandLenght = (numberOfVertices+1)*4+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
+    int maxCommandLenght = (numberOfVertices+1)*5+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
     char inputContainer[maxCommandLenght]; //Container per linput
 
     //lettura comandi  2 casi possibili
@@ -622,6 +682,7 @@ int main() {
 
     Graph* graph= createGraph(); //creo il grafo
     MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
+    int* explored = malloc((numberOfVertices)*sizeof(int)); //support for the Uniform cost search
 
     if(numberOfVertices < 100){
         MinHeap* minHeapPtr = createMinHeap();
@@ -712,7 +773,8 @@ int main() {
                     }
                 }
 
-                numeroCamminiMinimi = dijkstraFibHeap(graph, fibHeapPtr); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
+                numeroCamminiMinimi = fib_uniform_Cost_Search(graph,fibHeapPtr,explored);
+                //numeroCamminiMinimi = dijkstraFibHeap(graph, fibHeapPtr); //una volta letta la matrice e riempito il grafo calcolo i cammini Minimi
                 insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
@@ -736,6 +798,7 @@ int main() {
 
     //TODO eliminazione maxHeap e Graph useless togli quando metti su server------------------------------------------
 
+    free(explored);
 //    for(i=1; i<lunghezzaClassifica+1; i++){
 //        free(maxHeapPtr->array[i]);
 //    }
