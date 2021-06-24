@@ -9,36 +9,6 @@
     int numberOfVertices;
     int lunghezzaClassifica;
 
-typedef struct edge_node{
-    int edgeWeight;
-    int destinationVertex;
-    struct edge_node* next;
-}EdgeNode;
-
-typedef struct{
-    EdgeNode** adjListArray;
-}Graph;
-
-
-Graph* createGraph(){
-    Graph* graph = malloc(sizeof(Graph));
-    graph->adjListArray = malloc(numberOfVertices * sizeof (EdgeNode*));
-    for(int i=0; i<numberOfVertices; ++i){
-        graph->adjListArray[i]=NULL;
-    }
-    return graph;
-}
-
-void addEdge(Graph* graph, int start, int dest, int weight){
-    //inserimento in testa alla lista se il peso è maggiore di zero e non è un autoanello o una freccia di ritorno a zero
-    EdgeNode* newNode = malloc(sizeof(EdgeNode));
-    newNode->destinationVertex = dest;
-    newNode->edgeWeight = weight;
-    newNode->next = NULL;
-    newNode->next = graph->adjListArray[start];
-    graph->adjListArray[start] = newNode;
-}
-
 //-------------------------------------------------------------------
 
 // start of BinaryMinHeap with fibonacci Structure---------------------------------------
@@ -308,9 +278,9 @@ void fib_Heap_DecreaseKey(FibHeap* H, FibNode* nodeToDecrease, int newDistance){
 }
 //_---------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------
-int fib_uniform_Cost_Search(Graph* graph, FibHeap *fibHeapPtr,int* explored) {
+//la fibHeap contiene i nodi che posso visitare di frontiera
+int fib_uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], FibHeap *fibHeapPtr,int* explored) {
     int sommaCamminiMinimi=0;
-    //frontier Q contiene i  vicini da poter visitare
     //explored = contenitore per i nodi che abbbiamo gia visitato
     memset(explored,0,sizeof(int)*(numberOfVertices));
 
@@ -322,7 +292,8 @@ int fib_uniform_Cost_Search(Graph* graph, FibHeap *fibHeapPtr,int* explored) {
 
 
     while (fibHeapPtr->size != 0){ //fino a che la heap non è vuota
-        int u,v;
+        int u;
+        int v = 0;
         FibNode *minDistanceNode = fib_Extract_Min(fibHeapPtr);
         //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
         sommaCamminiMinimi += minDistanceNode->distance; //verranno inseriti solo nodi raggiungibili quindi non ho bisogno di controlli
@@ -330,39 +301,24 @@ int fib_uniform_Cost_Search(Graph* graph, FibHeap *fibHeapPtr,int* explored) {
         u = minDistanceNode->index; //index del nodo estratto
         explored[u]=2; //setto il nodo estratto a explored
 
-        EdgeNode *temp = graph->adjListArray[u];
-        while (temp != NULL) {
-            v = temp->destinationVertex; //leggo la sua adj list e aggiungo alla Heap tutti i suoi vicini non gia visitati con la loro distanza giusta
-            if (explored[v] != 2){ //se il nodo che posso raggiungere non è ancora stato estratto
+        int edgeWeight;
+
+        while (v < numberOfVertices-1) {
+            edgeWeight = graph[u][++v];
+            //leggo la sua adj list e aggiungo alla Heap tutti i suoi vicini non gia visitati con la loro distanza giusta
+            if (explored[v] != 2 && edgeWeight > 0 && u != v ){ //se il nodo che posso raggiungere non è ancora stato estratto,o auto anello o non esiste edge
                 if(explored[v]==0){ //se il nodo non è presente nella heap->lo creo e lo inserisco gia con la distanza giusta
-                    FibNode* newFrontierNode = createNewFibNode(v,minDistanceNode->distance + temp->edgeWeight); //creo nodo del vicino
+                    FibNode* newFrontierNode = createNewFibNode(v,minDistanceNode->distance + edgeWeight); //creo nodo del vicino
                     fibHeapPtr->staticPointers[v]=newFrontierNode;
                     fib_Heap_insert(fibHeapPtr,newFrontierNode); // lo aggiungo alla heap
                     explored[v]=1;  //lo segno come esplorato
-                }else if(fibHeapPtr->staticPointers[v]->distance > minDistanceNode->distance+temp->edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
-                    fib_Heap_DecreaseKey(fibHeapPtr,fibHeapPtr->staticPointers[v],minDistanceNode->distance+temp->edgeWeight);
+                }else if(fibHeapPtr->staticPointers[v]->distance > minDistanceNode->distance+ edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
+                    fib_Heap_DecreaseKey(fibHeapPtr,fibHeapPtr->staticPointers[v],minDistanceNode->distance+ edgeWeight);
                 }
-                //TODO si puo eliminare i casi di explored 0,1 con static pointers inizializzandolo a NULL se punta a NULL allora non è nella heap(caso 0) else è nella heap (caso 1) il caso 2 invece puo essere gestito tramite il simbolo mark inserito nei nodi direttamente
-                //se il nodo puntato da static pointer ha mark = 2 allora è stato estratto
             }
-            EdgeNode* deleteGraphEdge = temp;
-            temp = temp->next; //leggo il prossimo edge node
-            free(deleteGraphEdge);
         }
         free(minDistanceNode); //delete the node extracted from minHeap
     }
-
-//    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
-//        if(explored[i]==0){
-//            EdgeNode *temp,*delete;
-//            temp = graph->adjListArray[i];
-//            while (temp!=NULL){
-//                delete = temp;
-//                temp = temp->next;
-//                free(delete);
-//            }
-//        }
-//    }
     return sommaCamminiMinimi;
 }
 
@@ -473,9 +429,8 @@ void min_Bin_Heap_insert(MinHeap * minHeap, int key, int gIndex){
     decreaseDistance(minHeap, gIndex , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
 }
 
-int bin_Uniform_Cost_Search(Graph* graph, MinHeap *binHeapPtr, int* explored) {
+int bin_Uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], MinHeap *binHeapPtr, int* explored) {
     int sommaCamminiMinimi=0;
-    //frontier Q contiene i  vicini da poter visitare
     //explored = contenitore per i nodi che abbbiamo gia visitato
     memset(explored,0,sizeof(int)*(numberOfVertices));
 
@@ -486,45 +441,29 @@ int bin_Uniform_Cost_Search(Graph* graph, MinHeap *binHeapPtr, int* explored) {
 
 
     while (binHeapPtr->size != 0){ //fino a che la heap non è vuota
-        int u,v;
+        int u;
+        int v=0;
         MinHeapNode *minDistanceNode = extractMin(binHeapPtr);
         //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
         sommaCamminiMinimi += minDistanceNode->distance; //verranno inseriti solo nodi raggiungibili quindi non ho bisogno di controlli
 
         u = minDistanceNode->vertexIndex; //index del nodo estratto
         explored[u]=2; //setto il nodo estratto a explored
+        int edgeWeight;
 
-        EdgeNode *temp = graph->adjListArray[u];
-        while (temp != NULL) {
-            v = temp->destinationVertex; //leggo la sua adj list e aggiungo alla Heap tutti i suoi vicini non gia visitati con la loro distanza giusta
-            if (explored[v] != 2){ //se il nodo che posso raggiungere non è ancora stato estratto
+        while (v < numberOfVertices-1){ //leggo tutta la riga di u ovvero tutti gli edge che escono da u
+            edgeWeight = graph[u][++v]; //peso della freccia da u a v faccio subito ++ passo subito a 1 perchè la prima colonna è inutile
+            if (explored[v] != 2 && u != v && edgeWeight > 0){ //se il nodo che posso raggiungere non è ancora stato estratto, se non sono nel caso di autoAnello o edge inesistente
                 if(explored[v]==0){ //se il nodo non è presente nella heap->lo creo e lo inserisco gia con la distanza giusta
-                    min_Bin_Heap_insert(binHeapPtr,minDistanceNode->distance + temp->edgeWeight,v);
+                    min_Bin_Heap_insert(binHeapPtr,minDistanceNode->distance + edgeWeight,v);
                     explored[v]=1;  //lo segno come esplorato
-                }else if(binHeapPtr->array[binHeapPtr->positionArray[v]]->distance > minDistanceNode->distance + temp->edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
-                    decreaseDistance(binHeapPtr,v, minDistanceNode->distance + temp->edgeWeight);
+                }else if(binHeapPtr->array[binHeapPtr->positionArray[v]]->distance > minDistanceNode->distance + edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
+                    decreaseDistance(binHeapPtr,v, minDistanceNode->distance + edgeWeight);
                 }
-                //TODO si puo eliminare i casi di explored 0,1 con static pointers inizializzandolo a NULL se punta a NULL allora non è nella heap(caso 0) else è nella heap (caso 1) il caso 2 invece puo essere gestito tramite il simbolo mark inserito nei nodi direttamente
-                //se il nodo puntato da static pointer ha mark = 2 allora è stato estratto
             }
-            EdgeNode* deleteGraphEdge = temp;
-            temp = temp->next; //leggo il prossimo edge node
-            free(deleteGraphEdge);
         }
         free(minDistanceNode); //delete the node extracted from minHeap
     }
-
-//    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
-//        if(explored[i]==0){
-//            EdgeNode *temp,*delete;
-//            temp = graph->adjListArray[i];
-//            while (temp!=NULL){
-//                delete = temp;
-//                temp = temp->next;
-//                free(delete);
-//            }
-//        }
-//    }
     return sommaCamminiMinimi;
 }
 
@@ -629,13 +568,13 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
-//
-//    // test for files not existing.
-//    if (fp == NULL) {
-//        perror(fp);
-//        exit(-1);
-//    }
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
+
+    // test for files not existing.
+    if (fp == NULL) {
+        perror(fp);
+        exit(-1);
+    }
 
     //ARRAY di char che conterrano il primo comando
     char firstcommand[MAX_FIRSTCOMMANDLENGHT];
@@ -643,7 +582,7 @@ int main() {
     int i,j;
 
     //lettura primo comando
-    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, stdin) == NULL) {
+    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
         return -1;
     }//es. "11,2"
     char* string,*end;
@@ -664,40 +603,35 @@ int main() {
     int graphIndex=-1;
     int numeroCamminiMinimi; //TODO devo fare un assegnamwnto??
 
-    Graph* graph= createGraph(); //creo il grafo
+    int graph[numberOfVertices][numberOfVertices];
+
     MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
     //int* explored = malloc((numberOfVertices)*sizeof(int)); //support for the Uniform cost search
     int explored[numberOfVertices];
 
     if(numberOfVertices < 150){
         MinHeap* minHeapPtr = createMinHeap();
-        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
-                if(graphIndex != 0 ){ //TODO prova ad eliminare sto ciclo
-                    for(i=0; i<numberOfVertices; ++i){
-                        graph->adjListArray[i]=NULL;
-                    }
-                }
                 memset(inputContainer, 0,maxCommandLenght); //svuoto inputContainer
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i) {
-                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
                     j = 0; //indice delle colonne
                     string = inputContainer;
 
-//              walk through other number of the Line
+//              walk through other number of the Line and fill the matrix
                     while (1) {
                         int edgeWeight =(int) strtol(string, &end, 10);
                         if (string == end)
                             break;
-                        if(edgeWeight>0 && i!=j && j!=0)
-                            addEdge(graph, i, j, edgeWeight); //aggiungo edge al grafo
+                        graph[i][j]=edgeWeight;
                         string = end+1;
                         ++j;
                     }
@@ -725,20 +659,15 @@ int main() {
 //            free(minHeapPtr);
     }else{
         FibHeap* fibHeapPtr = create_Fib_Heap();
-        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
-                if(graphIndex != 0 ){ //TODO prova ad eliminare sto ciclo
-                    for(i=0; i<numberOfVertices; ++i){
-                        graph->adjListArray[i]=NULL;
-                    }
-                }
                 memset(inputContainer, 0,maxCommandLenght); //svuoto inputContainer
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i){
-                    if(fgets(inputContainer, maxCommandLenght,stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght,fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
@@ -746,12 +675,11 @@ int main() {
                     string = inputContainer;
 
 //              walk through other number of the Line
-                    while (1) {
+                    while (1){
                         int edgeWeight =(int) strtol(string, &end, 10);
                         if (string == end)
                             break;
-                        if(edgeWeight>0 && i!=j && j!=0)
-                            addEdge(graph, i, j, edgeWeight); //aggiungo edge al grafo
+                        graph[i][j]=edgeWeight;
                         string = end+1;
                         j++;
                     }
