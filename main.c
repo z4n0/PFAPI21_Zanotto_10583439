@@ -349,20 +349,20 @@ int fib_uniform_Cost_Search(Graph* graph, FibHeap *fibHeapPtr,int* explored) {
             temp = temp->next; //leggo il prossimo edge node
             free(deleteGraphEdge);
         }
-        free(minDistanceNode); //delete the node extracted from minHeap
+        //free(minDistanceNode); //delete the node extracted from minHeap
     }
 
-    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
-        if(explored[i]==0){
-            EdgeNode *temp,*delete;
-            temp = graph->adjListArray[i];
-            while (temp!=NULL){
-                delete = temp;
-                temp = temp->next;
-                free(delete);
-            }
-        }
-    }
+//    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
+//        if(explored[i]==0){
+//            EdgeNode *temp,*delete;
+//            temp = graph->adjListArray[i];
+//            while (temp!=NULL){
+//                delete = temp;
+//                temp = temp->next;
+//                free(delete);
+//            }
+//        }
+//    }
     return sommaCamminiMinimi;
 }
 
@@ -464,10 +464,10 @@ void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
     }
 }
 
-void min_Bin_Heap_insert (MinHeap * minHeap, int key, int gIndex){
+void min_Bin_Heap_insert(MinHeap * minHeap, int key, int gIndex){
     MinHeapNode * newNode;
     minHeap->size++;
-    newNode = newMinHeapNode(gIndex,INFINITY); //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
+    newNode = newMinHeapNode(gIndex,key); //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
     minHeap->array[minHeap->size] = newNode; //lo inserisco alla fine (lo faccio puntare all ultimno posto
     minHeap->positionArray[gIndex] = minHeap->size;
     decreaseDistance(minHeap, gIndex , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
@@ -511,20 +511,20 @@ int bin_Uniform_Cost_Search(Graph* graph, MinHeap *binHeapPtr, int* explored) {
             temp = temp->next; //leggo il prossimo edge node
             free(deleteGraphEdge);
         }
-        free(minDistanceNode); //delete the node extracted from minHeap
+        //free(minDistanceNode); //delete the node extracted from minHeap
     }
 
-    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
-        if(explored[i]==0){
-            EdgeNode *temp,*delete;
-            temp = graph->adjListArray[i];
-            while (temp!=NULL){
-                delete = temp;
-                temp = temp->next;
-                free(delete);
-            }
-        }
-    }
+//    for (int i = 0; i < numberOfVertices; ++i) { //ciclo per eliminare gli edge dei nodi non raggiungibili
+//        if(explored[i]==0){
+//            EdgeNode *temp,*delete;
+//            temp = graph->adjListArray[i];
+//            while (temp!=NULL){
+//                delete = temp;
+//                temp = temp->next;
+//                free(delete);
+//            }
+//        }
+//    }
     return sommaCamminiMinimi;
 }
 
@@ -629,7 +629,7 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_1", "r"); // read only
+//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
 //
 //    // test for files not existing.
 //    if (fp == NULL) {
@@ -670,7 +670,7 @@ int main() {
 
     if(numberOfVertices < 100){
         MinHeap* minHeapPtr = createMinHeap();
-        while (fgets(inputContainer, maxCommandLenght, stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -736,8 +736,8 @@ int main() {
                 memset(inputContainer, 0,maxCommandLenght); //svuoto inputContainer
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
-                for (i = 0; i < numberOfVertices; ++i) {
-                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
+                for (i = 0; i < numberOfVertices; ++i){
+                    if(fgets(inputContainer, maxCommandLenght,stdin) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
