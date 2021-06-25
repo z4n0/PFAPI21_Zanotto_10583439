@@ -3,13 +3,9 @@
 #include <string.h>
 #include <math.h>
 #define MAX_FIRSTCOMMANDLENGHT 13
-#define INF 9999999
-
 
 int numberOfVertices;
 int lunghezzaClassifica;
-
-//-------------------------------------------------------------------
 
 // start of BinaryMinHeap with fibonacci Structure---------------------------------------
 typedef struct fib_Node {
@@ -91,7 +87,6 @@ void fib_Heap_Link(FibNode* y, FibNode* x){
     //collego i vicini di y nella rootList
     y->left->right = y->right;
     y->right->left = y->left;
-    //byPassedBySiblings(y);
 
     y->parent = x; //make y child of x
 
@@ -148,7 +143,6 @@ void consolidate(FibHeap* H){
     d = currentRootNode->degree;
     x = currentRootNode;
     while (ArrayOfPointer[d] != NULL) {
-        // another node with the same degree as x
         y = ArrayOfPointer[d];
         if(x->distance > y->distance) {
             FibNode *t = x;
@@ -176,12 +170,12 @@ void consolidate(FibHeap* H){
 }
 
 
-//concatenate the children into rootList
+//add the children into rootList
 //children are passed already with father = NULL;
 void insertChildrenIntoRootList(FibNode *min, FibNode *firstChild){
     FibNode *temp;
 
-    temp = min->right;
+    temp=min->right;
     firstChild->left->right = temp;
     temp->left=firstChild->left;
     firstChild->left=min;
@@ -263,7 +257,7 @@ void fib_Heap_DecreaseKey(FibHeap* H, FibNode* nodeToDecrease, int newDistance){
     nodeToDecrease->distance = newDistance;
     FibNode* parentNode = nodeToDecrease->parent;
 
-    if(parentNode == NULL){ //im in the root list //TODO nb this if is usless but can speed up time if node to be removed its in rootList skippa il resto della funzione
+    if(parentNode == NULL){ //im in the root list
         if(newDistance < H->min->distance){ //se il nuovo valore è minore del min faccio update del min e finisco
             H->min = nodeToDecrease;
             return;
@@ -277,7 +271,6 @@ void fib_Heap_DecreaseKey(FibHeap* H, FibNode* nodeToDecrease, int newDistance){
         H->min = nodeToDecrease;
 }
 //_---------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------
 //la fibHeap contiene i nodi che posso visitare di frontiera
 int fib_uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], FibHeap *fibHeapPtr,int* explored) {
     int sommaCamminiMinimi=0;
@@ -287,9 +280,7 @@ int fib_uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], FibHe
     FibNode* nodeZero = createNewFibNode(0, 0); //creo nuovo nodo con dist infinito
     fib_Heap_insert(fibHeapPtr,nodeZero);
     //FIbHEap Q contiene i  vicini da poter visitare
-    //keep track of explored verteces, 0 if is unexplored 1 if explored temporary 2 if extracted-> made permanent
-    //explored[0] = 2; //node zero is already extracted-> made permanent
-
+    //explored keep track of explored verteces, 0 if is unexplored 1 if explored temporary 2 if extracted-> made permanent
 
     while (fibHeapPtr->size != 0){ //fino a che la heap non è vuota
         int u;
@@ -322,7 +313,6 @@ int fib_uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], FibHe
     return sommaCamminiMinimi;
 }
 
-
 // start of MinHeap Structure---------------------------------------
 typedef struct {
     int vertexIndex;
@@ -336,7 +326,6 @@ void swapMinHeapNode(MinHeapNode* a, MinHeapNode* b){
     *a = *b;
     *b = temp;
 }
-
 
 void minHeapify(MinHeapNode minHeap[numberOfVertices+1], int index, int positionArray[numberOfVertices])
 {
@@ -363,10 +352,7 @@ void minHeapify(MinHeapNode minHeap[numberOfVertices+1], int index, int position
     }
 }
 
-//extract the root swap it with last element and call heapify, return a pointer to it
-//if heap is empty return NULL
 MinHeapNode extractMin(MinHeapNode minHeap[numberOfVertices+1], int positionArray[numberOfVertices]) {
-        //swapPositions(minHeap,1,minHeap->maxHeapSize);
         positionArray[minHeap[1].vertexIndex] = minHeapSize; // minHeap->positionArray[parentIndex]
         positionArray[minHeap[minHeapSize].vertexIndex] = 1;
         MinHeapNode min = minHeap[1]; //estraggo la radice
@@ -384,13 +370,11 @@ void decreaseDistance(MinHeapNode minHeap[], int vertexIndex, int dist, int posi
 
     while (arrayHeapIndex != 1 && minHeap[arrayHeapIndex].distance < minHeap[(arrayHeapIndex)/2].distance){
         //sposto in alto i nodi con distanza minore
-        //swapPositions(minHeap,arrayHeapIndex,(arrayHeapIndex)/2); //aggiorno posizione nodi scambiati
         positionArray[minHeap[arrayHeapIndex].vertexIndex] = arrayHeapIndex/2; // minHeap->positionArray[parentIndex]
         positionArray[minHeap[(arrayHeapIndex)/2].vertexIndex] = arrayHeapIndex;
         MinHeapNode temp= minHeap[arrayHeapIndex];
         minHeap[arrayHeapIndex] = minHeap[(arrayHeapIndex)/2];
         minHeap[(arrayHeapIndex)/2] = temp;
-        //swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[(arrayHeapIndex)/2]); //scambio nodi
 
         arrayHeapIndex = (arrayHeapIndex)/2; //mi muovo verso lalto
     }
@@ -412,7 +396,7 @@ int bin_Uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], MinHe
     //MinHeapNode * nodeZero = newMinHeapNode(0, 0); //creo nuovo nodo con dist infinito
     min_Bin_Heap_insert(minHeap,0,0,positionArray); //NB si occupa gia lei di allocare il nuovo nodo
     //FIbHEap Q contiene i  vicini da poter visitare
-    //keep track of explored verteces, 0 if is unexplored 1 if explored temporary 2 if extracted-> made permanent
+    //explored keep track of explored verteces, 0 if is unexplored 1 if explored temporary 2 if extracted-> made permanent
 
 
     while (minHeapSize != 0){ //fino a che la heap non è vuota
@@ -471,13 +455,13 @@ void maxHeapify(GraphHeapNode* maxHeap, int index){
     if(left_child > lunghezzaClassifica) //caso in cui non abbia figli
         return;
 
-    if(left_child <= maxHeapSize && maxHeap[left_child].camminiMinimi >= maxHeap[index].camminiMinimi){ //TODO controllo child <= maxHeapSize è ridondante? NO non lo è
+    if(left_child <= maxHeapSize && maxHeap[left_child].camminiMinimi >= maxHeap[index].camminiMinimi){
         maxPos = left_child;
     }else{
         maxPos=index;
     }
 
-    if(right_child <= maxHeapSize && maxHeap[right_child].camminiMinimi > maxHeap[maxPos].camminiMinimi){ //TODO occhio ho cambiato >= in >
+    if(right_child <= maxHeapSize && maxHeap[right_child].camminiMinimi > maxHeap[maxPos].camminiMinimi){
         maxPos = right_child;
     }
 
@@ -506,14 +490,6 @@ void insert(GraphHeapNode maxHeap[lunghezzaClassifica+1], int key, int gIndex){
 }
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
-//
-//    // test for files not existing.
-//    if (fp == NULL) {
-//        perror(fp);
-//        exit(-1);
-//    }
-
     //ARRAY di char che conterrano il primo comando
     char firstcommand[MAX_FIRSTCOMMANDLENGHT];
 
@@ -530,7 +506,6 @@ int main() {
     numberOfVertices =(int) strtol(string,&end,10);
     lunghezzaClassifica =(int) strtol(end,NULL,10);
 
-    //todo change value of k in maxCommL = numOfVErt*k , maybe MAXFIRSTCOMMANDLENGHT--
     int maxCommandLenght = (numberOfVertices+1)*4+numberOfVertices; //Lunghezza del BUffer 5 è la mia stima ogni numero ha 399 numeri da leggere che sono numeri compresi tra le (0-6 cifre) ho stimato 5 perchè so che ci saranno molti zeri in media quindi ho stimato che i numeri siano di 5 cifre (stima larga)+ nvertici virgole
     char inputContainer[maxCommandLenght]; //Container per linput
 
@@ -539,7 +514,7 @@ int main() {
     //2 Calcola cammini minimi e aggiungi risultato alla MaxHeap;
     //2.Topk--> stampa classifica
     int graphIndex=-1;
-    int numeroCamminiMinimi; //TODO devo fare un assegnamwnto??
+    int numeroCamminiMinimi;
 
     int graph[numberOfVertices][numberOfVertices];
     GraphHeapNode maxHeapArray[lunghezzaClassifica+1];
@@ -592,9 +567,6 @@ int main() {
                 }
             }
         }
-//            free(minHeapPtr->array);
-//            free(minHeapPtr->positionArray);
-//            free(minHeapPtr);
     }else{
         FibHeap* fibHeapPtr = create_Fib_Heap();
         while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
@@ -640,8 +612,6 @@ int main() {
                 }
             }
         }
-//        free(fibHeapPtr->staticPointers);
-//        free(fibHeapPtr);
     }
     return 0;
 }
