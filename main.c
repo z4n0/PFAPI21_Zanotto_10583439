@@ -329,45 +329,25 @@ typedef struct {
     int distance;
 }MinHeapNode;
 
-typedef struct{
-    int size;
-    MinHeapNode **array; //dynamic array which create a heap of minHeapNodes
-    int* positionArray; //keep track of the Index of the vertices in the array min heap structure
-    //ex at index 1 of position arrayContains the index of vertex 1 in array
-}MinHeap;
+int minHeapSize=0;
 
-MinHeapNode* newMinHeapNode(int vertexId, int dist){
-    MinHeapNode* newMinHeapNode = malloc(sizeof(MinHeapNode));
-    newMinHeapNode->distance = dist;
-    newMinHeapNode->vertexIndex = vertexId;
-    return newMinHeapNode;
-}
-
-MinHeap* createMinHeap(){
-    MinHeap* minHeap = malloc(sizeof (MinHeap));
-    minHeap->size=0;
-    minHeap->positionArray= malloc(numberOfVertices* sizeof(int));
-    minHeap->array = malloc((numberOfVertices+1) * sizeof (MinHeapNode*));
-    return minHeap;
-}
-
-void swapMinHeapNode(MinHeapNode** a, MinHeapNode** b){
-    MinHeapNode *temp= *a;
+void swapMinHeapNode(MinHeapNode* a, MinHeapNode* b){
+    MinHeapNode temp= *a;
     *a = *b;
     *b = temp;
 }
 
 
-void minHeapify(MinHeap* minHeap, int index)
+void minHeapify(MinHeapNode minHeap[numberOfVertices+1], int index, int positionArray[numberOfVertices])
 {
     int minPos = index; //contains the index of the minimum element in the array heap
     int left = (2*index);
     int right = (2*index)+1;
     //se lindice sx è fuori dalla heap maxHeapSize e la sua distanza è minore di quella del padre allora diventa essa smallest
-    if (left <= minHeap->size && minHeap->array[left]->distance < minHeap->array[minPos]->distance)
+    if (left <= minHeapSize && minHeap[left].distance < minHeap[minPos].distance)
         minPos = left;
     //identico ma a dx NB lordine di controllo prima sx e poi dx è importante
-    if (right <= minHeap->size && minHeap->array[right]->distance < minHeap->array[minPos]->distance)
+    if (right <= minHeapSize && minHeap[right].distance < minHeap[minPos].distance)
         minPos = right;
 
     //se smallest è cambiato vuol dire che bisogna swappare qualcosa--> esiste un figlio con valore di distanza minore del padre --> swap x avere minPos heap
@@ -375,79 +355,79 @@ void minHeapify(MinHeap* minHeap, int index)
     {
         // Swap positions--> the node with less distance is going up the heap --> array[minPos] take the position of array[index]
         //swapPositions(minHeap, minPos, index);
-        minHeap->positionArray[minHeap->array[minPos]->vertexIndex] = index; // minHeap->positionArray[parentIndex]
-        minHeap->positionArray[minHeap->array[index]->vertexIndex] = minPos;
-        swapMinHeapNode(&minHeap->array[minPos], &minHeap->array[index]);
-        minHeapify(minHeap, minPos);
+        positionArray[minHeap[minPos].vertexIndex] = index; // minHeap->positionArray[parentIndex]
+        positionArray[minHeap[index].vertexIndex] = minPos;
+
+        swapMinHeapNode(&minHeap[minPos], &minHeap[index]);
+        minHeapify(minHeap, minPos, positionArray);
     }
 }
 
 //extract the root swap it with last element and call heapify, return a pointer to it
 //if heap is empty return NULL
-MinHeapNode* extractMin(MinHeap* minHeap){
-    if(minHeap->size==0){ //se non esiste ritorno NUll
-        return NULL;
+MinHeapNode extractMin(MinHeapNode minHeap[numberOfVertices+1], int positionArray[numberOfVertices]) {
+    if (minHeapSize != 0) { //se non esiste ritorno NU
+
+        //swapPositions(minHeap,1,minHeap->maxHeapSize);
+        positionArray[minHeap[1].vertexIndex] = minHeapSize; // minHeap->positionArray[parentIndex]
+        positionArray[minHeap[minHeapSize].vertexIndex] = 1;
+        MinHeapNode min = minHeap[1]; //estraggo la radice
+        minHeap[1] = minHeap[minHeapSize]; //la radice diventa lultimo elemento
+
+        minHeapSize--;
+        minHeapify(minHeap, 1,positionArray);
+
+        return min;
     }
-
-    //swapPositions(minHeap,1,minHeap->maxHeapSize);
-    minHeap->positionArray[minHeap->array[1]->vertexIndex] = minHeap->size; // minHeap->positionArray[parentIndex]
-    minHeap->positionArray[minHeap->array[minHeap->size]->vertexIndex] = 1;
-    MinHeapNode* min = minHeap->array[1]; //estraggo la radice
-    minHeap->array[1] = minHeap->array[minHeap->size]; //la radice diventa lultimo elemento
-
-    minHeap->size--;
-    minHeapify(minHeap,1);
-
-    return min;
+    printf("huston we have a problem");
 }
 
-void decreaseDistance(MinHeap* minHeap, int vertexIndex, int dist){
+void decreaseDistance(MinHeapNode minHeap[], int vertexIndex, int dist, int positionArray[numberOfVertices]){
 
-    int arrayHeapIndex = minHeap->positionArray[vertexIndex];
-    minHeap->array[arrayHeapIndex]->distance = dist; //aggiorno la distanza nell array heaP
+    int arrayHeapIndex = positionArray[vertexIndex];
+    minHeap[arrayHeapIndex].distance = dist; //aggiorno la distanza nell array heaP
 
-    while (arrayHeapIndex != 1 && minHeap->array[arrayHeapIndex]->distance < minHeap->array[(arrayHeapIndex)/2]->distance){
+    while (arrayHeapIndex != 1 && minHeap[arrayHeapIndex].distance < minHeap[(arrayHeapIndex)/2].distance){
         //sposto in alto i nodi con distanza minore
         //swapPositions(minHeap,arrayHeapIndex,(arrayHeapIndex)/2); //aggiorno posizione nodi scambiati
-        minHeap->positionArray[minHeap->array[arrayHeapIndex]->vertexIndex] = arrayHeapIndex/2; // minHeap->positionArray[parentIndex]
-        minHeap->positionArray[minHeap->array[(arrayHeapIndex)/2]->vertexIndex] = arrayHeapIndex;
-        MinHeapNode *temp= minHeap->array[arrayHeapIndex];
-        minHeap->array[arrayHeapIndex] = minHeap->array[(arrayHeapIndex)/2];
-        minHeap->array[(arrayHeapIndex)/2] = temp;
+        positionArray[minHeap[arrayHeapIndex].vertexIndex] = arrayHeapIndex/2; // minHeap->positionArray[parentIndex]
+        positionArray[minHeap[(arrayHeapIndex)/2].vertexIndex] = arrayHeapIndex;
+        MinHeapNode temp= minHeap[arrayHeapIndex];
+        minHeap[arrayHeapIndex] = minHeap[(arrayHeapIndex)/2];
+        minHeap[(arrayHeapIndex)/2] = temp;
         //swapMinHeapNode(&minHeap->array[arrayHeapIndex],&minHeap->array[(arrayHeapIndex)/2]); //scambio nodi
 
         arrayHeapIndex = (arrayHeapIndex)/2; //mi muovo verso lalto
     }
 }
 
-void min_Bin_Heap_insert(MinHeap * minHeap, int key, int gIndex){
-    MinHeapNode * newNode;
-    minHeap->size++;
-    newNode = newMinHeapNode(gIndex,key); //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
-    minHeap->array[minHeap->size] = newNode; //lo inserisco alla fine (lo faccio puntare all ultimno posto
-    minHeap->positionArray[gIndex] = minHeap->size;
-    decreaseDistance(minHeap, gIndex , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
+void min_Bin_Heap_insert(MinHeapNode minHeap[numberOfVertices+1], int key, int gIndex,int positionArray[numberOfVertices]){
+    minHeapSize++;
+    minHeap[minHeapSize].distance=key; //lo inserisco alla fine (lo faccio puntare all ultimno posto
+    minHeap[minHeapSize].vertexIndex=gIndex;
+    positionArray[gIndex] = minHeapSize;
+    decreaseDistance(minHeap, gIndex , key, positionArray); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
 }
 
-int bin_Uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], MinHeap* binHeapPtr, int* explored) {
+int bin_Uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], MinHeapNode minHeap[numberOfVertices+1], int* explored, int positionArray[numberOfVertices]) {
     int sommaCamminiMinimi=0;
     //explored = contenitore per i nodi che abbbiamo gia visitato
     memset(explored,0,sizeof(int)*(numberOfVertices));
 
     //MinHeapNode * nodeZero = newMinHeapNode(0, 0); //creo nuovo nodo con dist infinito
-    min_Bin_Heap_insert(binHeapPtr,0,0); //NB si occupa gia lei di allocare il nuovo nodo
+    min_Bin_Heap_insert(minHeap,0,0,positionArray); //NB si occupa gia lei di allocare il nuovo nodo
     //FIbHEap Q contiene i  vicini da poter visitare
     //keep track of explored verteces, 0 if is unexplored 1 if explored temporary 2 if extracted-> made permanent
 
 
-    while (binHeapPtr->size != 0){ //fino a che la heap non è vuota
+    while (minHeapSize != 0){ //fino a che la heap non è vuota
         int u;
         int v=0;
-        MinHeapNode *minDistanceNode = extractMin(binHeapPtr);
+        MinHeapNode minDistanceNode = extractMin(minHeap,positionArray);
         //aggiorna somma CamminiMinimi quando estrai un nodo perchè è qua che diventa permanente*/
-        sommaCamminiMinimi += minDistanceNode->distance; //verranno inseriti solo nodi raggiungibili quindi non ho bisogno di controlli
+        sommaCamminiMinimi += minDistanceNode.distance; //verranno inseriti solo nodi raggiungibili quindi non ho bisogno di controlli
 
-        u = minDistanceNode->vertexIndex; //index del nodo estratto
+        u = minDistanceNode.vertexIndex; //index del nodo estratto
         explored[u]=2; //setto il nodo estratto a explored
         int edgeWeight;
 
@@ -455,14 +435,13 @@ int bin_Uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], MinHe
             edgeWeight = graph[u][++v]; //peso della freccia da u a v faccio subito ++ passo subito a 1 perchè la prima colonna è inutile
             if (explored[v] != 2 && u != v && edgeWeight > 0){ //se il nodo che posso raggiungere non è ancora stato estratto, se non sono nel caso di autoAnello o edge inesistente
                 if(explored[v]==0){ //se il nodo non è presente nella heap->lo creo e lo inserisco gia con la distanza giusta
-                    min_Bin_Heap_insert(binHeapPtr,minDistanceNode->distance + edgeWeight,v);
+                    min_Bin_Heap_insert(minHeap,minDistanceNode.distance + edgeWeight,v,positionArray);
                     explored[v]=1;  //lo segno come esplorato
-                }else if(binHeapPtr->array[binHeapPtr->positionArray[v]]->distance > minDistanceNode->distance + edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
-                    decreaseDistance(binHeapPtr,v, minDistanceNode->distance + edgeWeight);
+                }else if(minHeap[positionArray[v]].distance > minDistanceNode.distance + edgeWeight){ //se il nodo è gia presente nella Heap explored[v])=1;--> e ha valore maggiore di quello esistente decreaseKey
+                    decreaseDistance(minHeap,v, minDistanceNode.distance + edgeWeight,positionArray);
                 }
             }
         }
-        free(minDistanceNode); //delete the node extracted from minHeap
     }
     return sommaCamminiMinimi;
 }
@@ -531,7 +510,6 @@ void insert(GraphHeapNode maxHeap[lunghezzaClassifica+1], int key, int gIndex){
     }
 }
 
-
 int main() {
 //    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
 //
@@ -573,9 +551,9 @@ int main() {
     int explored[numberOfVertices];
 
     if(numberOfVertices < 350){
+        MinHeapNode minHeapArray[numberOfVertices+1];
+        int positionArray[numberOfVertices]; //containes at index k the index of minHeapArray where you find node k;
 
-        MinHeap* minHeapPtr = createMinHeap();
-        //MinHeapNode minHeapArray[numberOfVertices+1];
         while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
@@ -601,7 +579,7 @@ int main() {
                         ++j;
                     }
                 }
-                numeroCamminiMinimi= bin_Uniform_Cost_Search(graph,minHeapPtr,explored);
+                numeroCamminiMinimi= bin_Uniform_Cost_Search(graph,minHeapArray,explored,positionArray);
                 insert(maxHeapArray, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
