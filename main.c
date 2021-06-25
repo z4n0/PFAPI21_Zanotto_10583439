@@ -568,13 +568,13 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
-
-    // test for files not existing.
-    if (fp == NULL) {
-        perror(fp);
-        exit(-1);
-    }
+//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
+//
+//    // test for files not existing.
+//    if (fp == NULL) {
+//        perror(fp);
+//        exit(-1);
+//    }
 
     //ARRAY di char che conterrano il primo comando
     char firstcommand[MAX_FIRSTCOMMANDLENGHT];
@@ -582,7 +582,7 @@ int main() {
     int i,j;
 
     //lettura primo comando
-    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
+    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, stdin) == NULL) {
         return -1;
     }//es. "11,2"
     char* string,*end;
@@ -611,7 +611,7 @@ int main() {
 
     if(numberOfVertices < 150){
         MinHeap* minHeapPtr = createMinHeap();
-        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -619,7 +619,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i) {
-                    if(fgets(inputContainer, maxCommandLenght, fp) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
@@ -659,7 +659,7 @@ int main() {
 //            free(minHeapPtr);
     }else{
         FibHeap* fibHeapPtr = create_Fib_Heap();
-        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -667,7 +667,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i){
-                    if(fgets(inputContainer, maxCommandLenght,fp) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght,stdin) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
