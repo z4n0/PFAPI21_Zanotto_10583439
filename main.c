@@ -429,7 +429,7 @@ void min_Bin_Heap_insert(MinHeap * minHeap, int key, int gIndex){
     decreaseDistance(minHeap, gIndex , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
 }
 
-int bin_Uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], MinHeap *binHeapPtr, int* explored) {
+int bin_Uniform_Cost_Search(int graph[numberOfVertices][numberOfVertices], MinHeap* binHeapPtr, int* explored) {
     int sommaCamminiMinimi=0;
     //explored = contenitore per i nodi che abbbiamo gia visitato
     memset(explored,0,sizeof(int)*(numberOfVertices));
@@ -515,7 +515,7 @@ void maxHeapify(GraphHeapNode* maxHeap, int index){
     }
 }
 
-void insert(GraphHeapNode maxHeap[lunghezzaClassifica], int key, int gIndex){
+void insert(GraphHeapNode maxHeap[lunghezzaClassifica+1], int key, int gIndex){
     if(maxHeapSize < lunghezzaClassifica){
         maxHeapSize++;
         maxHeap[maxHeapSize].gIndex = gIndex;
@@ -572,8 +572,10 @@ int main() {
     GraphHeapNode maxHeapArray[lunghezzaClassifica+1];
     int explored[numberOfVertices];
 
-    if(numberOfVertices < 250){
+    if(numberOfVertices < 350){
+
         MinHeap* minHeapPtr = createMinHeap();
+        //MinHeapNode minHeapArray[numberOfVertices+1];
         while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
