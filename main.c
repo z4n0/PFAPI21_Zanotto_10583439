@@ -366,8 +366,6 @@ void minHeapify(MinHeapNode minHeap[numberOfVertices+1], int index, int position
 //extract the root swap it with last element and call heapify, return a pointer to it
 //if heap is empty return NULL
 MinHeapNode extractMin(MinHeapNode minHeap[numberOfVertices+1], int positionArray[numberOfVertices]) {
-    if (minHeapSize != 0) { //se non esiste ritorno NU
-
         //swapPositions(minHeap,1,minHeap->maxHeapSize);
         positionArray[minHeap[1].vertexIndex] = minHeapSize; // minHeap->positionArray[parentIndex]
         positionArray[minHeap[minHeapSize].vertexIndex] = 1;
@@ -376,10 +374,7 @@ MinHeapNode extractMin(MinHeapNode minHeap[numberOfVertices+1], int positionArra
 
         minHeapSize--;
         minHeapify(minHeap, 1,positionArray);
-
-        return min;
-    }
-    printf("huston we have a problem");
+    return min;
 }
 
 void decreaseDistance(MinHeapNode minHeap[], int vertexIndex, int dist, int positionArray[numberOfVertices]){
@@ -511,7 +506,7 @@ void insert(GraphHeapNode maxHeap[lunghezzaClassifica+1], int key, int gIndex){
 }
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
+//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
 //
 //    // test for files not existing.
 //    if (fp == NULL) {
@@ -607,7 +602,6 @@ int main() {
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
                 memset(inputContainer, 0,maxCommandLenght); //svuoto inputContainer
-
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i){
                     if(fgets(inputContainer, maxCommandLenght,stdin) == NULL){
