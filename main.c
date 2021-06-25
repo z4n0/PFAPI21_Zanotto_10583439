@@ -363,7 +363,7 @@ void minHeapify(MinHeap* minHeap, int index)
     int minPos = index; //contains the index of the minimum element in the array heap
     int left = (2*index);
     int right = (2*index)+1;
-    //se lindice sx è fuori dalla heap size e la sua distanza è minore di quella del padre allora diventa essa smallest
+    //se lindice sx è fuori dalla heap maxHeapSize e la sua distanza è minore di quella del padre allora diventa essa smallest
     if (left <= minHeap->size && minHeap->array[left]->distance < minHeap->array[minPos]->distance)
         minPos = left;
     //identico ma a dx NB lordine di controllo prima sx e poi dx è importante
@@ -389,7 +389,7 @@ MinHeapNode* extractMin(MinHeap* minHeap){
         return NULL;
     }
 
-    //swapPositions(minHeap,1,minHeap->size);
+    //swapPositions(minHeap,1,minHeap->maxHeapSize);
     minHeap->positionArray[minHeap->array[1]->vertexIndex] = minHeap->size; // minHeap->positionArray[parentIndex]
     minHeap->positionArray[minHeap->array[minHeap->size]->vertexIndex] = 1;
     MinHeapNode* min = minHeap->array[1]; //estraggo la radice
@@ -473,56 +473,33 @@ typedef struct graph_heap_Node
 {
     int gIndex;
     int camminiMinimi;
-
 }GraphHeapNode;
 
+int maxHeapSize=0;
 
-typedef struct max_heap{
-    GraphHeapNode **array;
-    int size;
-}MaxHeap;
-
-GraphHeapNode* newMaxHeapNode(int graphIndex){
-    GraphHeapNode* NewMaxHeapNode =(GraphHeapNode*) malloc(sizeof(GraphHeapNode));
-    NewMaxHeapNode->gIndex = graphIndex;
-    NewMaxHeapNode->camminiMinimi = INF*-1;
-    return NewMaxHeapNode;
-}
-
-//inizializza e restituisce un puntatore a MaxHeap
-MaxHeap* createMaxHeap(){
-    MaxHeap* maxHeap = malloc(sizeof (MaxHeap));
-    maxHeap->size=0;
-    //maxHeap->lunghezzaClassifica=lunghezzaClassifica;
-    maxHeap->array = malloc((lunghezzaClassifica+1) * sizeof(GraphHeapNode*)); //NB +1 xk la heap parte da 1
-    //maxHeap->array[0]=NULL; //TODO occhio a questo magari crea problemi in futuro o è useless??
-    return maxHeap;
-}
-
-
-void swapMaxH(GraphHeapNode **a, GraphHeapNode **b) {
-    GraphHeapNode* t;
+void swapMaxH(GraphHeapNode *a, GraphHeapNode *b) {
+    GraphHeapNode t;
     t = *a;
     *a = *b;
     *b = t;
 }
 
 
-void increase_key(MaxHeap* maxHeap, int index, int key) {
-    maxHeap->array[index]->camminiMinimi = key;
+void increase_key(GraphHeapNode* maxHeap, int index, int key) {
+    maxHeap[index].camminiMinimi = key;
 
-    while((index>1) && (maxHeap->array[index/2]->camminiMinimi <= maxHeap->array[index]->camminiMinimi)) {
-        GraphHeapNode* t;
-        t = maxHeap->array[index];
-        maxHeap->array[index] = maxHeap->array[index/2];
-        maxHeap->array[index/2] = t;
+    while((index>1) && (maxHeap[index/2].camminiMinimi <= maxHeap[index].camminiMinimi)) {
+        GraphHeapNode t;
+        t = maxHeap[index];
+        maxHeap[index] = maxHeap[index/2];
+        maxHeap[index/2] = t;
         //swapMaxH(&maxHeap->array[index], &maxHeap->array[index/2]); //è un UP_heapify
         index = index/2;  //move to parent
     }
 }
 
 //é un down Heapify
-void maxHeapify(MaxHeap* maxHeap, int index){
+void maxHeapify(GraphHeapNode* maxHeap, int index){
     int left_child = index*2;
     int right_child = index*2+1;
 
@@ -530,37 +507,34 @@ void maxHeapify(MaxHeap* maxHeap, int index){
     if(left_child > lunghezzaClassifica) //caso in cui non abbia figli
         return;
 
-    if(left_child <= maxHeap->size && maxHeap->array[left_child]->camminiMinimi >= maxHeap->array[index]->camminiMinimi){ //TODO controllo child <= size è ridondante? NO non lo è
+    if(left_child <= maxHeapSize && maxHeap[left_child].camminiMinimi >= maxHeap[index].camminiMinimi){ //TODO controllo child <= maxHeapSize è ridondante? NO non lo è
         maxPos = left_child;
-    } else{
+    }else{
         maxPos=index;
     }
 
-    if(right_child <= maxHeap->size && maxHeap->array[right_child]->camminiMinimi > maxHeap->array[maxPos]->camminiMinimi){ //TODO occhio ho cambiato >= in >
+    if(right_child <= maxHeapSize && maxHeap[right_child].camminiMinimi > maxHeap[maxPos].camminiMinimi){ //TODO occhio ho cambiato >= in >
         maxPos = right_child;
     }
 
     if(maxPos != index){
-        swapMaxH(&maxHeap->array[index], &maxHeap->array[maxPos]);
+        swapMaxH(&maxHeap[index], &maxHeap[maxPos]);
         maxHeapify(maxHeap, maxPos);
     }
 }
 
-void insert(MaxHeap* maxHeap, int key, int gIndex){
-    GraphHeapNode* newNode;
-    if(maxHeap->size < lunghezzaClassifica){
-        maxHeap->size++;
-        newNode = newMaxHeapNode(gIndex); //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
-        maxHeap->array[maxHeap->size] = newNode; //lo inserisco alla fine (lo faccio puntare all ultimno posto
-        increase_key(maxHeap,  maxHeap->size , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
+void insert(GraphHeapNode maxHeap[lunghezzaClassifica], int key, int gIndex){
+    if(maxHeapSize < lunghezzaClassifica){
+        maxHeapSize++;
+        maxHeap[maxHeapSize].gIndex = gIndex;
+        maxHeap[maxHeapSize].camminiMinimi = INF*-1; //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
+        increase_key(maxHeap, maxHeapSize , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
     }else{
-        if(key < maxHeap->array[1]->camminiMinimi){ //se il valore che voglio inserire è minore della root allora diventa root e la root vecchia viene eliminata
+        if(key < maxHeap[1].camminiMinimi){ //se il valore che voglio inserire è minore della root allora diventa root e la root vecchia viene eliminata
             //poi chiamo heapify cosi facendo in root avro sempre il massimo valore dei 5 che verra scambiato con quello entrante in caso sia minore inoltre la heap e riorganizzata
             //cosi facendo non devo salvare piu di lunghezzaclassifica elementi-->heapify è piu veloce e occupo meno mem
-            newNode = newMaxHeapNode(gIndex);
-            free(maxHeap->array[1]); //elimino la root
-            maxHeap->array[1]=newNode; //aggiorno la root
-            maxHeap->array[1]->camminiMinimi = key; //inserisco la distanza cosi perche con increase/decreaseKey chiamere heapifyUp che non funzia devo andare down ora
+            maxHeap[1].gIndex = gIndex;
+            maxHeap[1].camminiMinimi = key; //inserisco la distanza cosi perche con increase/decreaseKey chiamere heapifyUp che non funzia devo andare down ora
             maxHeapify(maxHeap, 1); //top_down
         }
     }
@@ -568,13 +542,13 @@ void insert(MaxHeap* maxHeap, int key, int gIndex){
 
 
 int main() {
-//    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
-//
-//    // test for files not existing.
-//    if (fp == NULL) {
-//        perror(fp);
-//        exit(-1);
-//    }
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
+
+    // test for files not existing.
+    if (fp == NULL) {
+        perror(fp);
+        exit(-1);
+    }
 
     //ARRAY di char che conterrano il primo comando
     char firstcommand[MAX_FIRSTCOMMANDLENGHT];
@@ -582,7 +556,7 @@ int main() {
     int i,j;
 
     //lettura primo comando
-    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, stdin) == NULL) {
+    if (fgets(firstcommand, MAX_FIRSTCOMMANDLENGHT, fp) == NULL) {
         return -1;
     }//es. "11,2"
     char* string,*end;
@@ -604,14 +578,12 @@ int main() {
     int numeroCamminiMinimi; //TODO devo fare un assegnamwnto??
 
     int graph[numberOfVertices][numberOfVertices];
-
-    MaxHeap* maxHeapPtr = createMaxHeap(); //creo la max Heap che conterra lindice del grafo e il proprio numero dei cammini minimi NB il primo elemento è ad index 1
-    //int* explored = malloc((numberOfVertices)*sizeof(int)); //support for the Uniform cost search
+    GraphHeapNode maxHeapArray[lunghezzaClassifica+1];
     int explored[numberOfVertices];
 
     if(numberOfVertices < 250){
         MinHeap* minHeapPtr = createMinHeap();
-        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -619,7 +591,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i) {
-                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght,fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
@@ -637,15 +609,15 @@ int main() {
                     }
                 }
                 numeroCamminiMinimi= bin_Uniform_Cost_Search(graph,minHeapPtr,explored);
-                insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
+                insert(maxHeapArray, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
                 for (i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
-                    if(i <= maxHeapPtr->size)
-                        if(i==maxHeapPtr->size){
-                            printf("%d",maxHeapPtr->array[i]->gIndex);
+                    if(i <= maxHeapSize)
+                        if(i==maxHeapSize){
+                            printf("%d",maxHeapArray[i].gIndex);
                         }else{
-                            printf("%d ",maxHeapPtr->array[i]->gIndex);
+                            printf("%d ",maxHeapArray[i].gIndex);
                         }
                     else{
                         printf("\n");
@@ -659,7 +631,7 @@ int main() {
 //            free(minHeapPtr);
     }else{
         FibHeap* fibHeapPtr = create_Fib_Heap();
-        while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
+        while (fgets(inputContainer, maxCommandLenght,fp) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
@@ -667,7 +639,7 @@ int main() {
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i){
-                    if(fgets(inputContainer, maxCommandLenght,stdin) == NULL){
+                    if(fgets(inputContainer, maxCommandLenght,fp) == NULL){
                         return 1;
                     };    //leggo riga matrice
 
@@ -686,15 +658,15 @@ int main() {
                 }
 
                 numeroCamminiMinimi = fib_uniform_Cost_Search(graph,fibHeapPtr,explored);
-                insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
+                insert(maxHeapArray, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
                 for (i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
-                    if(i <= maxHeapPtr->size)
-                        if(i==maxHeapPtr->size){
-                            printf("%d",maxHeapPtr->array[i]->gIndex);
+                    if(i <= maxHeapSize)
+                        if(i==maxHeapSize){
+                            printf("%d",maxHeapArray[i].gIndex);
                         }else{
-                            printf("%d ",maxHeapPtr->array[i]->gIndex);
+                            printf("%d ",maxHeapArray[i].gIndex);
                         }
                     else{
                         printf("\n");
@@ -706,17 +678,6 @@ int main() {
 //        free(fibHeapPtr->staticPointers);
 //        free(fibHeapPtr);
     }
-
-    //TODO eliminazione maxHeap e Graph useless togli quando metti su server------------------------------------------
-
-    // free(explored);
-//    for(i=1; i<lunghezzaClassifica+1; i++){
-//        free(maxHeapPtr->array[i]);
-//    }
-//    free(graph->adjListArray);
-//    free(graph);
-//    free(maxHeapPtr->array);
-//    free(maxHeapPtr);
     return 0;
 }
 
