@@ -477,23 +477,13 @@ typedef struct graph_heap_Node
 
 int maxHeapSize=0;
 
-void swapMaxH(GraphHeapNode *a, GraphHeapNode *b) {
-    GraphHeapNode t;
-    t = *a;
-    *a = *b;
-    *b = t;
-}
-
-
 void increase_key(GraphHeapNode* maxHeap, int index, int key) {
     maxHeap[index].camminiMinimi = key;
 
     while((index>1) && (maxHeap[index/2].camminiMinimi <= maxHeap[index].camminiMinimi)) {
-        GraphHeapNode t;
-        t = maxHeap[index];
+        GraphHeapNode t = maxHeap[index];
         maxHeap[index] = maxHeap[index/2];
         maxHeap[index/2] = t;
-        //swapMaxH(&maxHeap->array[index], &maxHeap->array[index/2]); //è un UP_heapify
         index = index/2;  //move to parent
     }
 }
@@ -518,7 +508,9 @@ void maxHeapify(GraphHeapNode* maxHeap, int index){
     }
 
     if(maxPos != index){
-        swapMaxH(&maxHeap[index], &maxHeap[maxPos]);
+        GraphHeapNode t = maxHeap[index];
+        maxHeap[index] = maxHeap[maxPos];
+        maxHeap[maxPos] = t;
         maxHeapify(maxHeap, maxPos);
     }
 }
@@ -580,7 +572,7 @@ int main() {
     GraphHeapNode maxHeapArray[lunghezzaClassifica+1];
     int explored[numberOfVertices];
 
-    if(numberOfVertices < 200){
+    if(numberOfVertices < 250){
         MinHeap* minHeapPtr = createMinHeap();
         while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
 
