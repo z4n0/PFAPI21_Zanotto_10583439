@@ -609,55 +609,55 @@ int main() {
     //int* explored = malloc((numberOfVertices)*sizeof(int)); //support for the Uniform cost search
     int explored[numberOfVertices];
 
-        MinHeap* minHeapPtr = createMinHeap();
+        FibHeap* fibHeapPtr = create_Fib_Heap();
         while (fgets(inputContainer, maxCommandLenght,stdin) != NULL) { //fino a che si puo leggere
 
             if (strcmp(inputContainer, "AggiungiGrafo\n") == 0) {
                 graphIndex++;
-                memset(inputContainer, 0,maxCommandLenght); //svuoto inputContainer
+                memset(inputContainer, 0, maxCommandLenght); //svuoto inputContainer
 
                 //Se il comando è di aggiungi grafo -->leggi la matrice nxn
                 for (i = 0; i < numberOfVertices; ++i) {
-                    if(fgets(inputContainer, maxCommandLenght, stdin) == NULL){
+                    if (fgets(inputContainer, maxCommandLenght, stdin) == NULL) {
                         return 1;
                     };    //leggo riga matrice
 
                     j = 0; //indice delle colonne
                     string = inputContainer;
 
-//              walk through other number of the Line and fill the matrix
+//              walk through other number of the Line
                     while (1) {
-                        int edgeWeight =(int) strtol(string, &end, 10);
+                        int edgeWeight = (int) strtol(string, &end, 10);
                         if (string == end)
                             break;
-                        graph[i][j]=edgeWeight;
-                        string = end+1;
-                        ++j;
+                        graph[i][j] = edgeWeight;
+                        string = end + 1;
+                        j++;
                     }
                 }
-                numeroCamminiMinimi= bin_Uniform_Cost_Search(graph,minHeapPtr,explored);
-                insert(maxHeapPtr, numeroCamminiMinimi, graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
+
+                numeroCamminiMinimi = fib_uniform_Cost_Search(graph, fibHeapPtr, explored);
+                insert(maxHeapPtr, numeroCamminiMinimi,
+                       graphIndex); //inserisco il risultato nella maxHeap che contiene gli indici dei k grafi con camm minimi minori
 
             } else if (strcmp(inputContainer, "TopK\n") == 0) {
-                for (i = 1; i < lunghezzaClassifica+1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
-                    if(i <= maxHeapPtr->size)
-                        if(i==maxHeapPtr->size){
-                            printf("%d",maxHeapPtr->array[i]->gIndex);
-                        }else{
-                            printf("%d ",maxHeapPtr->array[i]->gIndex);
+                for (i = 1;
+                     i < lunghezzaClassifica + 1; ++i) { //NB parte da 1 perchè il primo posto della maxHeap è vuoto
+                    if (i <= maxHeapPtr->size)
+                        if (i == maxHeapPtr->size) {
+                            printf("%d", maxHeapPtr->array[i]->gIndex);
+                        } else {
+                            printf("%d ", maxHeapPtr->array[i]->gIndex);
                         }
-                    else{
+                    else {
                         printf("\n");
                         break;
                     }
                 }
             }
-//            free(minHeapPtr->array);
-//            free(minHeapPtr->positionArray);
-//            free(minHeapPtr);
+        }
 //        free(fibHeapPtr->staticPointers);
 //        free(fibHeapPtr);
-    }
 
     //TODO eliminazione maxHeap e Graph useless togli quando metti su server------------------------------------------
 
