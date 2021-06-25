@@ -527,7 +527,6 @@ void insert(GraphHeapNode maxHeap[lunghezzaClassifica], int key, int gIndex){
     if(maxHeapSize < lunghezzaClassifica){
         maxHeapSize++;
         maxHeap[maxHeapSize].gIndex = gIndex;
-        maxHeap[maxHeapSize].camminiMinimi = INF*-1; //creo nuovo nodo (metto camminiMinimi a -INF durante la creazione e setto gIndex)
         increase_key(maxHeap, maxHeapSize , key); //setto il valore dei cammini minimi a key con increse key cosi chiama heapify
     }else{
         if(key < maxHeap[1].camminiMinimi){ //se il valore che voglio inserire è minore della root allora diventa root e la root vecchia viene eliminata
@@ -542,7 +541,7 @@ void insert(GraphHeapNode maxHeap[lunghezzaClassifica], int key, int gIndex){
 
 
 int main() {
-    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_6", "r"); // read only
+    FILE *fp = fopen("/home/zano/Desktop/PFAPI21_Zanotto_10583439/open_tests/input_4", "r"); // read only
 
     // test for files not existing.
     if (fp == NULL) {
